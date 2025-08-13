@@ -10,7 +10,13 @@ import javax.inject.Inject
 class GetProductsUseCase @Inject constructor(
     private val repository: ProductRepository
 ) {
-    operator fun invoke(scope: CoroutineScope): Flow<PagingData<Product>> {
-        return repository.getProducts(scope)
+    operator fun invoke(
+        scope: CoroutineScope,
+        searchQuery: String? = null
+    ): Flow<PagingData<Product>> {
+        return repository.getProducts(
+            scope,
+            searchQuery
+        )
     }
 }

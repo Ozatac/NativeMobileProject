@@ -5,12 +5,14 @@ import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
+import com.ozatactunahan.nativemobileapp.R
+import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentHomeBinding
-import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -42,7 +44,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private fun setupRecyclerView() {
         adapter = ProductPagingAdapter(
             onProductClick = ::navigateToProductDetail,
-            onAddToCartClick = ::addToCart
+            onAddToCartClick = ::addToCart,
+            onFavoriteClick = ::toggleFavorite
         )
 
         binding.recyclerView.apply {
@@ -54,15 +57,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
-    private fun setupSearchView() {
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?) = false
-            override fun onQueryTextChange(newText: String?) = true
-        })
-    }
-
     private fun observeData() {
-        // PagingData observe
+        // Sadece PagingData observe et
         collectLatestLifecycleFlow(
             viewModel.uiState.map { it.pagingData }.distinctUntilChanged()
         ) { pagingData ->
@@ -81,6 +77,32 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
             handleUiState(uiState)
         }
+
+        observeFavoriteStates()
+    }
+
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    viewModel.searchProducts(it)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                when {
+                    newText.isNullOrBlank() -> {
+                        viewModel.clearSearch()
+                    }
+
+                    newText.length >= 3 -> {
+                        viewModel.searchProducts(newText)
+                    }
+                }
+                return true
+            }
+        })
     }
 
     private fun handleLoadStates(loadStates: CombinedLoadStates) = with(loadStates) {
@@ -116,12 +138,37 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun navigateToProductDetail(product: Product) {
-        print("Product detail navigation")
-        // TODO: Navigate to product detail
+        val bundle = Bundle().apply {
+            putParcelable(
+                "product",
+                product
+            )
+        }
+        findNavController().navigate(
+            R.id.navigation_product_detail,
+            bundle
+        )
     }
 
     private fun addToCart(product: Product) {
-        print("Product detail navigation")
         // TODO: Add to cart functionality
+    }
+
+    private fun toggleFavorite(
+        product: Product,
+        isFavorite: Boolean
+    ) {
+        viewModel.toggleFavorite(product)
+    }
+
+    private fun observeFavoriteStates() {
+        collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
+            uiState.favoriteStates.forEach { (productId, isFavorite) ->
+                adapter.updateFavoriteState(
+                    productId,
+                    isFavorite
+                )
+            }
+        }
     }
 }

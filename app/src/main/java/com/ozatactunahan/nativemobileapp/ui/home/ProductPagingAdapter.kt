@@ -18,10 +18,24 @@ import com.ozatactunahan.nativemobileapp.databinding.ItemProductBinding
 
 class ProductPagingAdapter(
     private val onProductClick: (Product) -> Unit,
-    private val onAddToCartClick: (Product) -> Unit
+    private val onAddToCartClick: (Product) -> Unit,
+    private val onFavoriteClick: (Product, Boolean) -> Unit
 ) : PagingDataAdapter<Product, ProductPagingAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+    private val favoriteStates = mutableMapOf<String, Boolean>()
+    private val viewHolderMap = mutableMapOf<String, ProductViewHolder>()
+
+    fun updateFavoriteState(productId: String, isFavorite: Boolean) {
+        favoriteStates[productId] = isFavorite
+        
+        // ViewHolder'da güncellemeyi dene
+        viewHolderMap[productId]?.updateFavoriteIcon(productId)
+    }
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ProductViewHolder {
         val binding = ItemProductBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -30,14 +44,28 @@ class ProductPagingAdapter(
         return ProductViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ProductViewHolder,
+        position: Int
+    ) {
         val product = getItem(position)
-        product?.let { holder.bind(it) }
+        product?.let { 
+            holder.bind(it)
+            // ViewHolder'ı kaydet
+            viewHolderMap[it.id] = holder
+        }
+    }
+
+    override fun onViewDetachedFromWindow(holder: ProductViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        // ViewHolder'ı kaldır
+        viewHolderMap.values.remove(holder)
     }
 
     inner class ProductViewHolder(
         private val binding: ItemProductBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+
 
         fun bind(product: Product) {
             binding.apply {
@@ -61,7 +89,7 @@ class ProductPagingAdapter(
                                 p3: Boolean
                             ): Boolean {
                                 Log.w("Glide", "Failed to load image: ${product.image}")
-                                return false // Let Glide handle the error
+                                return false
                             }
 
                             override fun onResourceReady(
@@ -76,7 +104,6 @@ class ProductPagingAdapter(
                         })
                         .into(productImage)
                 } catch (e: Exception) {
-                    // Fallback to placeholder if Glide fails
                     productImage.setImageResource(R.drawable.placeholder_image)
                     android.util.Log.e("Glide", "Exception loading image: ${product.image}", e)
                 }
@@ -88,16 +115,39 @@ class ProductPagingAdapter(
                 addToCartButton.setOnClickListener {
                     onAddToCartClick(product)
                 }
+
+                // Favori durumunu göster
+                updateFavoriteIcon(product.id)
+
+                favoriteButton.setOnClickListener {
+                    onFavoriteClick(product, !(favoriteStates[product.id] ?: false))
+                }
             }
+        }
+
+        fun updateFavoriteIcon(productId: String) {
+                            val isFavorite = favoriteStates[productId] ?: false
+                val favoriteIcon = if (isFavorite) {
+                    R.drawable.ic_favorite_filled
+                } else {
+                    R.drawable.ic_favorite
+                }
+            binding.favoriteButton.setImageResource(favoriteIcon)
         }
     }
 
     private class ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
-        override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
+        override fun areItemsTheSame(
+            oldItem: Product,
+            newItem: Product
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
+        override fun areContentsTheSame(
+            oldItem: Product,
+            newItem: Product
+        ): Boolean {
             return oldItem == newItem
         }
     }

@@ -11,7 +11,8 @@ import com.ozatactunahan.nativemobileapp.databinding.ItemProductBinding
 
 class ProductAdapter(
     private val onProductClick: (Product) -> Unit,
-    private val onAddToCartClick: (Product) -> Unit
+    private val onAddToCartClick: (Product) -> Unit,
+    private val onFavoriteClick: (Product, Boolean) -> Unit
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -48,6 +49,11 @@ class ProductAdapter(
 
                 addToCartButton.setOnClickListener {
                     onAddToCartClick(product)
+                }
+
+                favoriteButton.setOnClickListener {
+                    // TODO: Burada favori durumunu kontrol etmek için callback kullanılacak
+                    onFavoriteClick(product, true)
                 }
             }
         }

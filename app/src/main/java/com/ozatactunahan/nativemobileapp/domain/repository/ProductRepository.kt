@@ -6,5 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
-    fun getProducts(scope: CoroutineScope): Flow<PagingData<Product>>
+    fun getProducts(
+        scope: CoroutineScope,
+        searchQuery: String? = null
+    ): Flow<PagingData<Product>>
 }

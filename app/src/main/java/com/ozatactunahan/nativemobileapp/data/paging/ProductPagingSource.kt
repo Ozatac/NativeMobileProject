@@ -6,7 +6,8 @@ import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.data.remote.ProductApiService
 
 class ProductPagingSource(
-    private val apiService: ProductApiService
+    private val apiService: ProductApiService,
+    private val searchQuery: String? = null,
 ) : PagingSource<Int, Product>() {
 
     override fun getRefreshKey(state: PagingState<Int, Product>): Int? {
@@ -23,20 +24,30 @@ class ProductPagingSource(
             
             // API'den tüm ürünleri çekiyoruz (pagination desteklemiyor)
             val response = apiService.getProducts()
-            
+
+            // Arama varsa filtreleme yap
+            val filteredProducts = if (!searchQuery.isNullOrBlank()) {
+                response.filter { product ->
+                    product.name.contains(searchQuery, ignoreCase = true) ||
+                            product.description?.contains(searchQuery, ignoreCase = true) == true
+                }
+            } else {
+                response
+            }
+
             // Manuel pagination yapıyoruz
             val startIndex = (page - 1) * pageSize
-            val endIndex = minOf(startIndex + pageSize, response.size)
-            
-            val products = if (startIndex < response.size) {
-                response.subList(startIndex, endIndex)
+            val endIndex = minOf(startIndex + pageSize, filteredProducts.size)
+
+            val products = if (startIndex < filteredProducts.size) {
+                filteredProducts.subList(startIndex, endIndex)
             } else {
                 emptyList()
             }
-            
+
             val prevKey = if (page == 1) null else page - 1
-            val nextKey = if (endIndex >= response.size) null else page + 1
-            
+            val nextKey = if (endIndex >= filteredProducts.size) null else page + 1
+
             LoadResult.Page(
                 data = products,
                 prevKey = prevKey,

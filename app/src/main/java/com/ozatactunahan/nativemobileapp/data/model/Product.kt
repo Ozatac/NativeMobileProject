@@ -1,7 +1,10 @@
 package com.ozatactunahan.nativemobileapp.data.model
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Product(
     @SerializedName("id")
     val id: String,
@@ -19,4 +22,4 @@ data class Product(
     val brand: String,
     @SerializedName("createdAt")
     val createdAt: String
-)
+) : Parcelable

@@ -16,7 +16,10 @@ class ProductRepositoryImpl @Inject constructor(
     private val apiService: ProductApiService
 ) : ProductRepository {
 
-    override fun getProducts(scope: CoroutineScope): Flow<PagingData<Product>> {
+    override fun getProducts(
+        scope: CoroutineScope,
+        searchQuery: String?
+    ): Flow<PagingData<Product>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -24,8 +27,10 @@ class ProductRepositoryImpl @Inject constructor(
                 prefetchDistance = 3
             ),
             pagingSourceFactory = {
-                ProductPagingSource(apiService)
-            }
-        ).flow.cachedIn(scope) // ✅ Scope'u parametre olarak alıyoruz
+                ProductPagingSource(
+                    apiService,
+                    searchQuery
+                )
+            }).flow.cachedIn(scope)
     }
 }
