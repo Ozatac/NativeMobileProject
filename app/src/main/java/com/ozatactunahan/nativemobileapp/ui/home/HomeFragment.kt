@@ -1,104 +1,127 @@
 package com.ozatactunahan.nativemobileapp.ui.home
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
+import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentHomeBinding
+import com.ozatactunahan.nativemobileapp.common.BaseFragment
+import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 @AndroidEntryPoint
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
     private lateinit var adapter: ProductPagingAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+    override fun onViewCreated(
+        view: View,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
+    ) {
+        super.onViewCreated(
+            view,
+            savedInstanceState
+        )
+        setupUI()
+        observeData()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+    private fun setupUI() {
         setupRecyclerView()
         setupSearchView()
-        observeViewModel()
     }
 
     private fun setupRecyclerView() {
         adapter = ProductPagingAdapter(
-            onProductClick = { product ->
-                // TODO: Navigate to product detail
-            },
-            onAddToCartClick = { product ->
-                // TODO: Add to cart functionality
-            }
+            onProductClick = ::navigateToProductDetail,
+            onAddToCartClick = ::addToCart
         )
 
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = GridLayoutManager(
+                context,
+                2
+            )
             adapter = this@HomeFragment.adapter
         }
     }
 
     private fun setupSearchView() {
-        binding.searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                // TODO: Implement search with Paging3
-                return true
-            }
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+            override fun onQueryTextChange(newText: String?) = true
         })
     }
 
-    private fun observeViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collectLatest { uiState ->
-                adapter.submitData(lifecycle, uiState.pagingData)
-
-                binding.progressBar.visibility = if (uiState.isLoading) View.VISIBLE else View.GONE
-
-                binding.errorText.visibility = if (uiState.error != null) View.VISIBLE else View.GONE
-                binding.errorText.text = uiState.error
-            }
+    private fun observeData() {
+        // PagingData observe
+        collectLatestLifecycleFlow(
+            viewModel.uiState.map { it.pagingData }.distinctUntilChanged()
+        ) { pagingData ->
+            adapter.submitData(
+                lifecycle,
+                pagingData
+            )
         }
 
-        // LoadState observer for better UX
-        viewLifecycleOwner.lifecycleScope.launch {
-            adapter.loadStateFlow.collectLatest { loadStates ->
-                binding.progressBar.visibility =
-                    if (loadStates.refresh is LoadState.Loading) View.VISIBLE else View.GONE
+        // LoadStates observe
+        collectLatestLifecycleFlow(adapter.loadStateFlow) { loadStates ->
+            handleLoadStates(loadStates)
+        }
 
-                if (loadStates.refresh is LoadState.Error) {
-                    binding.errorText.visibility = View.VISIBLE
-                    binding.errorText.text = (loadStates.refresh as LoadState.Error).error.message
-                } else {
-                    binding.errorText.visibility = View.GONE
-                }
-            }
+        // UiState observe
+        collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
+            handleUiState(uiState)
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun handleLoadStates(loadStates: CombinedLoadStates) = with(loadStates) {
+        val isRefreshLoading = refresh is LoadState.Loading
+        val isAppendLoading = append is LoadState.Loading
+
+        showLoading(isRefreshLoading)
+        showPagingLoading(isAppendLoading)
+
+        (refresh as? LoadState.Error)?.let {
+            showError(it.error.message)
+        }
+    }
+
+    private fun handleUiState(uiState: HomeUiState) {
+        if (!uiState.isLoading) showLoading(false)
+        uiState.error?.let(::showError)
+    }
+
+    private fun showLoading(show: Boolean) {
+        binding.progressBar.isVisible = show
+    }
+
+    private fun showPagingLoading(show: Boolean) {
+        binding.progressBar.isVisible = show
+    }
+
+    private fun showError(message: String?) {
+        binding.errorText.run {
+            isVisible = !message.isNullOrBlank()
+            text = message.orEmpty()
+        }
+    }
+
+    private fun navigateToProductDetail(product: Product) {
+        print("Product detail navigation")
+        // TODO: Navigate to product detail
+    }
+
+    private fun addToCart(product: Product) {
+        print("Product detail navigation")
+        // TODO: Add to cart functionality
     }
 }
