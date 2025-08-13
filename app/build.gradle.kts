@@ -69,6 +69,10 @@ dependencies {
     // UI Components
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.swiperefreshlayout)
+    
+    // Paging3
+    implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidx.paging.common.ktx)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

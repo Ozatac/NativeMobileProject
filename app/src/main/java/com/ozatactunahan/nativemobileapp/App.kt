@@ -1,4 +1,4 @@
-package com.ozatactunahan.nativemobileapp.ui
+package com.ozatactunahan.nativemobileapp
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
