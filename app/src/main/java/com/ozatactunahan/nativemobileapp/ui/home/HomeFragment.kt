@@ -5,10 +5,17 @@ import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import com.ozatactunahan.nativemobileapp.R
 import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.data.model.Product
@@ -21,7 +28,7 @@ import kotlinx.coroutines.flow.map
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: ProductPagingAdapter
 
     override fun onViewCreated(
@@ -39,6 +46,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private fun setupUI() {
         setupRecyclerView()
         setupSearchView()
+        setupFilterButtons()
     }
 
     private fun setupRecyclerView() {
@@ -49,33 +57,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         )
 
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(
-                context,
-                2
-            )
+            layoutManager = GridLayoutManager(context, 2)
             adapter = this@HomeFragment.adapter
         }
     }
 
     private fun observeData() {
-        // Sadece PagingData observe et
-        collectLatestLifecycleFlow(
-            viewModel.uiState.map { it.pagingData }.distinctUntilChanged()
-        ) { pagingData ->
-            adapter.submitData(
-                lifecycle,
-                pagingData
-            )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { uiState ->
+                    handleUiState(uiState)
+                    adapter.submitData(lifecycle, uiState.pagingData)
+
+                }
+            }
         }
 
-        // LoadStates observe
         collectLatestLifecycleFlow(adapter.loadStateFlow) { loadStates ->
             handleLoadStates(loadStates)
-        }
-
-        // UiState observe
-        collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
-            handleUiState(uiState)
         }
 
         observeFavoriteStates()
@@ -120,6 +119,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private fun handleUiState(uiState: HomeUiState) {
         if (!uiState.isLoading) showLoading(false)
         uiState.error?.let(::showError)
+
+        if (uiState.isFiltered) {
+            binding.filterButton.text = "Filtreler Aktif (${uiState.filteredProducts.size})"
+        } else {
+            binding.filterButton.text = "Filtrele ve Sırala"
+        }
     }
 
     private fun showLoading(show: Boolean) {
@@ -139,36 +144,39 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun navigateToProductDetail(product: Product) {
         val bundle = Bundle().apply {
-            putParcelable(
-                "product",
-                product
-            )
+            putParcelable("product", product)
         }
-        findNavController().navigate(
-            R.id.navigation_product_detail,
-            bundle
-        )
+        findNavController().navigate(R.id.navigation_product_detail, bundle)
     }
 
     private fun addToCart(product: Product) {
         // TODO: Add to cart functionality
     }
 
-    private fun toggleFavorite(
-        product: Product,
-        isFavorite: Boolean
-    ) {
+    private fun toggleFavorite(product: Product, isFavorite: Boolean) {
         viewModel.toggleFavorite(product)
     }
 
     private fun observeFavoriteStates() {
         collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
             uiState.favoriteStates.forEach { (productId, isFavorite) ->
-                adapter.updateFavoriteState(
-                    productId,
-                    isFavorite
-                )
+                adapter.updateFavoriteState(productId, isFavorite)
             }
         }
+    }
+
+    private fun setupFilterButtons() {
+        binding.filterButton.setOnClickListener {
+            navigateToFilter()
+        }
+
+        binding.filterButton.setOnLongClickListener {
+            viewModel.clearFilters()
+            true
+        }
+    }
+
+    private fun navigateToFilter() {
+        findNavController().navigate(R.id.filter_fragment)
     }
 }

@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_product_detail"
             app:destination="@id/navigation_product_detail" />
+        <action
+            android:id="@+id/action_navigation_home_to_filter_fragment"
+            app:destination="@id/filter_fragment" />
     </fragment>
 
     <fragment
@@ -47,4 +50,11 @@
             app:destination="@id/navigation_home" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/filter_fragment"
+        android:name="com.ozatactunahan.nativemobileapp.ui.filter.FilterFragment"
+        android:label="Filtreleme"
+        tools:layout="@layout/fragment_filter" />
+
 </navigation>

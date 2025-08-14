@@ -21,7 +21,6 @@ class ProductDetailViewModel @Inject constructor(
     fun toggleFavorite(product: Product) {
         viewModelScope.launch {
             try {
-                // Önce ürünün favori olup olmadığını kontrol et
                 favoriteRepository.isFavorite(product.id).collect { isFavorite ->
                     if (isFavorite) {
                         favoriteRepository.removeFromFavorites(product.id)
@@ -32,7 +31,6 @@ class ProductDetailViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                // Hata durumunda mevcut durumu koru
                 android.util.Log.e("ProductDetailViewModel", "Favori işlemi başarısız", e)
             }
         }

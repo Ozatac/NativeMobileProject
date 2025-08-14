@@ -33,4 +33,15 @@ class ProductRepositoryImpl @Inject constructor(
                 )
             }).flow.cachedIn(scope)
     }
+
+    // Senkron ürün listesi almak için
+    suspend fun getProductsSync(): List<Product> {
+        return try {
+            // API'den direkt ürün listesi al
+            apiService.getProducts()
+        } catch (e: Exception) {
+            android.util.Log.e("ProductRepository", "Ürünler alınamadı", e)
+            emptyList()
+        }
+    }
 }

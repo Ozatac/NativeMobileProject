@@ -22,14 +22,12 @@ class ProductPagingSource(
             val page = params.key ?: 1
             val pageSize = params.loadSize
             
-            // API'den tüm ürünleri çekiyoruz (pagination desteklemiyor)
             val response = apiService.getProducts()
 
-            // Arama varsa filtreleme yap
             val filteredProducts = if (!searchQuery.isNullOrBlank()) {
                 response.filter { product ->
                     product.name.contains(searchQuery, ignoreCase = true) ||
-                            product.description?.contains(searchQuery, ignoreCase = true) == true
+                            product.description.contains(searchQuery, ignoreCase = true)
                 }
             } else {
                 response

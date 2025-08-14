@@ -1,20 +1,14 @@
 package com.ozatactunahan.nativemobileapp.ui.home
 
-import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.ozatactunahan.nativemobileapp.R
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.ItemProductBinding
+import com.ozatactunahan.nativemobileapp.util.loadProductImage
 
 class ProductPagingAdapter(
     private val onProductClick: (Product) -> Unit,
@@ -25,10 +19,11 @@ class ProductPagingAdapter(
     private val favoriteStates = mutableMapOf<String, Boolean>()
     private val viewHolderMap = mutableMapOf<String, ProductViewHolder>()
 
-    fun updateFavoriteState(productId: String, isFavorite: Boolean) {
+    fun updateFavoriteState(
+        productId: String,
+        isFavorite: Boolean
+    ) {
         favoriteStates[productId] = isFavorite
-        
-        // ViewHolder'da güncellemeyi dene
         viewHolderMap[productId]?.updateFavoriteIcon(productId)
     }
 
@@ -49,64 +44,37 @@ class ProductPagingAdapter(
         position: Int
     ) {
         val product = getItem(position)
-        product?.let { 
+        product?.let {
             holder.bind(it)
-            // ViewHolder'ı kaydet
             viewHolderMap[it.id] = holder
         }
     }
 
     override fun onViewDetachedFromWindow(holder: ProductViewHolder) {
         super.onViewDetachedFromWindow(holder)
-        // ViewHolder'ı kaldır
-        viewHolderMap.values.remove(holder)
+        viewHolderMap.entries.removeAll { it.value == holder }
+    }
+
+    override fun onViewRecycled(holder: ProductViewHolder) {
+        super.onViewRecycled(holder)
+        viewHolderMap.entries.removeAll { it.value == holder }
     }
 
     inner class ProductViewHolder(
         private val binding: ItemProductBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        private var currentProduct: Product? = null
 
         fun bind(product: Product) {
+            currentProduct = product
+
             binding.apply {
                 productName.text = product.name
                 productBrand.text = product.brand
                 productPrice.text = "$${product.price}"
 
-                try {
-                    Glide.with(productImage.context)
-                        .load(product.image)
-                        .centerCrop()
-                        .placeholder(R.drawable.placeholder_image)
-                        .error(R.drawable.error_image)
-                        .fallback(R.drawable.placeholder_image)
-                        .timeout(15000)
-                        .listener(object : RequestListener<android.graphics.drawable.Drawable> {
-                            override fun onLoadFailed(
-                                p0: GlideException?,
-                                p1: Any?,
-                                p2: Target<Drawable?>,
-                                p3: Boolean
-                            ): Boolean {
-                                Log.w("Glide", "Failed to load image: ${product.image}")
-                                return false
-                            }
-
-                            override fun onResourceReady(
-                                p0: Drawable,
-                                p1: Any,
-                                p2: Target<Drawable?>?,
-                                p3: DataSource,
-                                p4: Boolean
-                            ): Boolean {
-                                return false
-                            }
-                        })
-                        .into(productImage)
-                } catch (e: Exception) {
-                    productImage.setImageResource(R.drawable.placeholder_image)
-                    android.util.Log.e("Glide", "Exception loading image: ${product.image}", e)
-                }
+                productImage.loadProductImage(product.image)
 
                 root.setOnClickListener {
                     onProductClick(product)
@@ -116,23 +84,28 @@ class ProductPagingAdapter(
                     onAddToCartClick(product)
                 }
 
-                // Favori durumunu göster
                 updateFavoriteIcon(product.id)
 
                 favoriteButton.setOnClickListener {
-                    onFavoriteClick(product, !(favoriteStates[product.id] ?: false))
+                    val currentFavoriteState = favoriteStates[product.id] ?: false
+                    onFavoriteClick(product, !currentFavoriteState)
+
+                    favoriteStates[product.id] = !currentFavoriteState
+                    updateFavoriteIcon(product.id)
                 }
             }
         }
 
         fun updateFavoriteIcon(productId: String) {
-                            val isFavorite = favoriteStates[productId] ?: false
+            if (currentProduct?.id == productId) {
+                val isFavorite = favoriteStates[productId] ?: false
                 val favoriteIcon = if (isFavorite) {
-                    R.drawable.ic_favorite_filled
+                    R.drawable.ic_notifications_black_24dp
                 } else {
                     R.drawable.ic_favorite
                 }
-            binding.favoriteButton.setImageResource(favoriteIcon)
+                binding.favoriteButton.setImageResource(favoriteIcon)
+            }
         }
     }
 
@@ -149,6 +122,14 @@ class ProductPagingAdapter(
             newItem: Product
         ): Boolean {
             return oldItem == newItem
+        }
+
+        override fun getChangePayload(oldItem: Product, newItem: Product): Any? {
+            return if (oldItem.id == newItem.id && oldItem != newItem) {
+                "UPDATE"
+            } else {
+                null
+            }
         }
     }
 }

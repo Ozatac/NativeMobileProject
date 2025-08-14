@@ -1,46 +1,91 @@
 package com.ozatactunahan.nativemobileapp.ui.notifications
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.core.view.isVisible
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.ozatactunahan.nativemobileapp.R
+import com.ozatactunahan.nativemobileapp.common.BaseFragment
+import com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity
 import com.ozatactunahan.nativemobileapp.databinding.FragmentNotificationsBinding
+import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
+import dagger.hilt.android.AndroidEntryPoint
 
-class NotificationsFragment : Fragment() {
+@AndroidEntryPoint
+class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(FragmentNotificationsBinding::inflate) {
 
-    private var _binding: FragmentNotificationsBinding? = null
+    private val viewModel: NotificationsViewModel by viewModels()
+    private lateinit var adapter: FavoritesAdapter
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val notificationsViewModel =
-            ViewModelProvider(this).get(NotificationsViewModel::class.java)
-
-        _binding = FragmentNotificationsBinding.inflate(
-            inflater,
-            container,
-            false
-        )
-        val root: View = binding.root
-
-        val textView: TextView = binding.textNotifications
-        notificationsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupUI()
+        observeData()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun setupUI() {
+        setupRecyclerView()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = FavoritesAdapter(
+            onFavoriteClick = { favorite ->
+                viewModel.removeFromFavorites(favorite.productId)
+            },
+            onProductClick = { favorite ->
+                navigateToProductDetail(favorite)
+            }
+        )
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@NotificationsFragment.adapter
+        }
+    }
+
+    private fun observeData() {
+        collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
+            handleUiState(uiState)
+        }
+    }
+
+    private fun handleUiState(uiState: NotificationsUiState) {
+        binding.progressBar.isVisible = uiState.isLoading
+        
+        binding.errorText.run {
+            isVisible = !uiState.error.isNullOrBlank()
+            text = uiState.error.orEmpty()
+        }
+        
+        if (uiState.favorites.isNotEmpty()) {
+            binding.emptyStateText.isVisible = false
+            binding.recyclerView.isVisible = true
+            adapter.submitList(uiState.favorites)
+        } else {
+            binding.emptyStateText.isVisible = true
+            binding.recyclerView.isVisible = false
+        }
+    }
+    
+    private fun navigateToProductDetail(favorite: FavoriteEntity) {
+        val product = com.ozatactunahan.nativemobileapp.data.model.Product(
+            id = favorite.productId,
+            name = favorite.name,
+            image = favorite.imageUrl,
+            price = favorite.price,
+            description = "Favori ürün açıklaması",
+            model = "",
+            brand = favorite.brand,
+            createdAt = ""
+        )
+        
+        // Navigation component ile ProductDetailFragment'a git
+        val bundle = Bundle().apply {
+            putParcelable("product", product)
+        }
+        findNavController().navigate(R.id.navigation_product_detail, bundle)
     }
 }

@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepository
+import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.usecase.GetProductsUseCase
+import com.ozatactunahan.nativemobileapp.ui.filter.FilterResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,11 +20,19 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val productRepository: ProductRepositoryImpl
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    // Orijinal PagingData'yı sakla
+    private var originalPagingData: PagingData<Product> = PagingData.empty()
+
+    // EKLENEN: Filtreleme durumu için ayrı StateFlow
+    private val _filterState = MutableStateFlow<FilterResult?>(null)
+    private val filterState: StateFlow<FilterResult?> = _filterState.asStateFlow()
 
     init {
         loadProducts()
@@ -33,7 +43,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            getProductsUseCase(viewModelScope, searchQuery) // Query parametresi eklendi
+            getProductsUseCase(viewModelScope, searchQuery)
                 .catch { exception ->
                     _uiState.update {
                         it.copy(
@@ -43,12 +53,18 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 .collect { pagingData ->
-                    _uiState.update {
-                        it.copy(
+                    // Orijinal PagingData'yı sakla
+                    originalPagingData = pagingData
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
                             pagingData = pagingData,
                             isLoading = false,
                             error = null,
-                            searchQuery = searchQuery ?: ""
+                            searchQuery = searchQuery ?: "",
+                            isFiltered = if (searchQuery != null) false else currentState.isFiltered,
+                            filteredProducts = if (searchQuery != null) emptyList() else currentState.filteredProducts,
+                            refreshTrigger = System.currentTimeMillis()
                         )
                     }
                 }
@@ -63,7 +79,6 @@ class HomeViewModel @Inject constructor(
         loadProducts(query.takeIf { it.isNotBlank() })
     }
 
-    // Arama temizleme fonksiyonu
     fun clearSearch() {
         loadProducts(null)
     }
@@ -110,6 +125,70 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun applyFilters(filterResult: FilterResult) {
+        viewModelScope.launch {
+            try {
+                _uiState.update { it.copy(isLoading = true) }
+
+                val allProducts = productRepository.getProductsSync()
+
+                var filteredProducts = allProducts.filter { product ->
+                    val brandMatch = filterResult.selectedBrands.isEmpty() ||
+                            filterResult.selectedBrands.contains(product.brand)
+                    val modelMatch = filterResult.selectedModels.isEmpty() ||
+                            filterResult.selectedModels.contains(product.model)
+                    brandMatch && modelMatch
+                }
+                filteredProducts = when (filterResult.selectedSortOption) {
+                    "OLD_TO_NEW" -> filteredProducts.sortedBy { it.createdAt }
+                    "NEW_TO_OLD" -> filteredProducts.sortedByDescending { it.createdAt }
+                    "PRICE_HIGH_TO_LOW" -> filteredProducts.sortedByDescending { it.price.toDoubleOrNull() ?: 0.0 }
+                    "PRICE_LOW_TO_HIGH" -> filteredProducts.sortedBy { it.price.toDoubleOrNull() ?: 0.0 }
+                    else -> filteredProducts
+                }
+
+                val filteredPagingData = PagingData.from(filteredProducts)
+
+                _filterState.value = filterResult
+
+                _uiState.update { currentState ->
+                    val newState = currentState.copy(
+                        pagingData = filteredPagingData,
+                        filteredProducts = filteredProducts,
+                        isFiltered = true,
+                        isLoading = false,
+                        refreshTrigger = System.currentTimeMillis()
+                    )
+                    newState
+                }
+
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Filtreleme hatası: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearFilters() {
+        viewModelScope.launch {
+            _filterState.value = null
+
+            _uiState.update {
+                it.copy(
+                    pagingData = originalPagingData,
+                    filteredProducts = emptyList(),
+                    isFiltered = false,
+                    // EKLENEN: Refresh trigger
+                    refreshTrigger = System.currentTimeMillis()
+                )
+            }
+        }
+    }
 }
 
 data class HomeUiState(
@@ -117,5 +196,9 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val favoriteStates: Map<String, Boolean> = emptyMap(),
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val filteredProducts: List<Product> = emptyList(),
+    val isFiltered: Boolean = false,
+    // EKLENEN: PagingData değişikliklerini tetiklemek için
+    val refreshTrigger: Long = 0L
 )

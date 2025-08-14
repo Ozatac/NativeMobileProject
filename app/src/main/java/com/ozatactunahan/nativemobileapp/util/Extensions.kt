@@ -28,20 +28,6 @@ fun View.clickWithDebounce(debounceTime: Long = Constants.debounceTime, action: 
     })
 }
 
-fun ImageView.downloadFromUrl(url: String?, context: Context) {
-    val options = RequestOptions()
-        .error(ContextCompat.getDrawable(context, R.color.purple_200))
-
-    Glide.with(context)
-        .setDefaultRequestOptions(options)
-        .load(url)
-        .dontAnimate()
-        .fitCenter().into(this)
-}
-
-/**
- * Fragment'larda Flow'ları lifecycle-aware şekilde collect etmek için extension
- */
 inline fun <T> Fragment.collectLatestLifecycleFlow(
     flow: Flow<T>,
     crossinline action: suspend CoroutineScope.(T) -> Unit
@@ -53,9 +39,6 @@ inline fun <T> Fragment.collectLatestLifecycleFlow(
     }
 }
 
-/**
- * Fragment'larda Flow'ları collect etmek için extension
- */
 inline fun <T> Fragment.collectLifecycleFlow(
     flow: Flow<T>,
     crossinline action: suspend CoroutineScope.(T) -> Unit
