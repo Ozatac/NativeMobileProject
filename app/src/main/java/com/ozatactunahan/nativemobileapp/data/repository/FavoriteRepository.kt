@@ -3,22 +3,23 @@ package com.ozatactunahan.nativemobileapp.data.repository
 import com.ozatactunahan.nativemobileapp.data.local.dao.FavoriteDao
 import com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity
 import com.ozatactunahan.nativemobileapp.data.model.Product
+import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class FavoriteRepository @Inject constructor(
+class FavoriteRepositoryImpl @Inject constructor(
     private val favoriteDao: FavoriteDao
-) {
+) : FavoriteRepository {
     
-    fun getAllFavorites(): Flow<List<FavoriteEntity>> {
+    override fun getAllFavorites(): Flow<List<FavoriteEntity>> {
         return favoriteDao.getAllFavorites()
     }
     
-    fun isFavorite(productId: String): Flow<Boolean> {
+    override fun isFavorite(productId: String): Flow<Boolean> {
         return favoriteDao.isFavorite(productId)
     }
     
-    suspend fun addToFavorites(product: Product) {
+    override suspend fun addToFavorites(product: Product) {
         val favoriteEntity = FavoriteEntity(
             productId = product.id,
             name = product.name,
@@ -29,11 +30,11 @@ class FavoriteRepository @Inject constructor(
         favoriteDao.addToFavorites(favoriteEntity)
     }
     
-    suspend fun removeFromFavorites(productId: String) {
+    override suspend fun removeFromFavorites(productId: String) {
         favoriteDao.removeFromFavoritesById(productId)
     }
     
-    fun getFavoriteCount(): Flow<Int> {
+    override fun getFavoriteCount(): Flow<Int> {
         return favoriteDao.getFavoriteCount()
     }
 }

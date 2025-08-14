@@ -117,22 +117,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun handleUiState(uiState: HomeUiState) {
-        if (!uiState.isLoading) showLoading(false)
+        if (!uiState.isLoading) showLoading(true)
         uiState.error?.let(::showError)
-
-        if (uiState.isFiltered) {
-            binding.filterButton.text = "Filtreler Aktif (${uiState.filteredProducts.size})"
-        } else {
-            binding.filterButton.text = "Filtrele ve Sırala"
-        }
     }
 
     private fun showLoading(show: Boolean) {
-        binding.progressBar.isVisible = show
+        binding.apply {
+            progressBar.isVisible = show
+        }
     }
 
     private fun showPagingLoading(show: Boolean) {
-        binding.progressBar.isVisible = show
+        binding.apply {
+            progressBar.isVisible = show
+        }
     }
 
     private fun showError(message: String?) {

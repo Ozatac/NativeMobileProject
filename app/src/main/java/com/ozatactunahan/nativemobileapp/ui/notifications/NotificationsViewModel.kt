@@ -3,7 +3,7 @@ package com.ozatactunahan.nativemobileapp.ui.notifications
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity
-import com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepository
+import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

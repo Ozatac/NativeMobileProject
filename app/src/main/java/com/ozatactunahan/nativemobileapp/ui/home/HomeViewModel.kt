@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.ozatactunahan.nativemobileapp.data.model.Product
-import com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepository
+import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
 import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.usecase.GetProductsUseCase
 import com.ozatactunahan.nativemobileapp.ui.filter.FilterResult
@@ -27,10 +27,8 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    // Orijinal PagingData'yı sakla
     private var originalPagingData: PagingData<Product> = PagingData.empty()
 
-    // EKLENEN: Filtreleme durumu için ayrı StateFlow
     private val _filterState = MutableStateFlow<FilterResult?>(null)
     private val filterState: StateFlow<FilterResult?> = _filterState.asStateFlow()
 
@@ -43,7 +41,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            getProductsUseCase(viewModelScope, searchQuery)
+            getProductsUseCase(searchQuery)
                 .catch { exception ->
                     _uiState.update {
                         it.copy(
@@ -199,6 +197,5 @@ data class HomeUiState(
     val searchQuery: String = "",
     val filteredProducts: List<Product> = emptyList(),
     val isFiltered: Boolean = false,
-    // EKLENEN: PagingData değişikliklerini tetiklemek için
     val refreshTrigger: Long = 0L
 )

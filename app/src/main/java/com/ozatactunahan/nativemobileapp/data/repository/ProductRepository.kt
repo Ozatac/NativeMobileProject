@@ -3,12 +3,10 @@ package com.ozatactunahan.nativemobileapp.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.data.paging.ProductPagingSource
 import com.ozatactunahan.nativemobileapp.data.remote.ProductApiService
 import com.ozatactunahan.nativemobileapp.domain.repository.ProductRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -16,10 +14,7 @@ class ProductRepositoryImpl @Inject constructor(
     private val apiService: ProductApiService
 ) : ProductRepository {
 
-    override fun getProducts(
-        scope: CoroutineScope,
-        searchQuery: String?
-    ): Flow<PagingData<Product>> {
+    override fun getProducts(searchQuery: String?): Flow<PagingData<Product>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20,
@@ -31,13 +26,12 @@ class ProductRepositoryImpl @Inject constructor(
                     apiService,
                     searchQuery
                 )
-            }).flow.cachedIn(scope)
+            }).flow
     }
 
     // Senkron ürün listesi almak için
     suspend fun getProductsSync(): List<Product> {
         return try {
-            // API'den direkt ürün listesi al
             apiService.getProducts()
         } catch (e: Exception) {
             android.util.Log.e("ProductRepository", "Ürünler alınamadı", e)

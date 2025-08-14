@@ -3,7 +3,7 @@ package com.ozatactunahan.nativemobileapp.di
 import android.content.Context
 import com.ozatactunahan.nativemobileapp.data.local.AppDatabase
 import com.ozatactunahan.nativemobileapp.data.local.dao.FavoriteDao
-import com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepository
+import com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +29,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideFavoriteRepository(favoriteDao: FavoriteDao): FavoriteRepository {
-        return FavoriteRepository(favoriteDao)
+    fun provideFavoriteRepository(favoriteDao: FavoriteDao): com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository {
+        return FavoriteRepositoryImpl(favoriteDao)
     }
 }
