@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,8 +22,27 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
+    private val _uiEffect = MutableSharedFlow<ProfileUiEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
+
     init {
         loadOrders()
+    }
+
+    fun onUiEvent(event: ProfileUiEvent) {
+        when (event) {
+            is ProfileUiEvent.OrderClick -> {
+                viewModelScope.launch {
+                    _uiEffect.emit(ProfileUiEffect.NavigateToOrderDetail(event.order))
+                }
+            }
+            is ProfileUiEvent.DeleteOrder -> {
+                deleteOrder(event.orderId)
+            }
+            is ProfileUiEvent.Refresh -> {
+                loadOrders()
+            }
+        }
     }
 
     private fun loadOrders() {
@@ -43,11 +64,9 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 orderRepository.deleteOrder(orderId)
-                // Orders will be updated automatically through Flow
+                _uiEffect.emit(ProfileUiEffect.OrderDeletedSuccess)
             } catch (e: Exception) {
-                _uiState.update { 
-                    it.copy(error = "Sipariş silinemedi: ${e.message}")
-                }
+                _uiEffect.emit(ProfileUiEffect.ShowError("Sipariş silinemedi: ${e.message}"))
             }
         }
     }

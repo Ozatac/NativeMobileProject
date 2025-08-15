@@ -1,14 +1,16 @@
 package com.ozatactunahan.nativemobileapp.ui.dashboard
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ozatactunahan.nativemobileapp.data.model.CartItem
 import com.ozatactunahan.nativemobileapp.domain.repository.CartRepository
+import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,10 +22,33 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    private val _uiEffect = MutableSharedFlow<DashboardUiEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
+
     init {
         loadCartItems()
         observeCartCount()
         observeTotalPrice()
+    }
+
+    fun onUiEvent(event: DashboardUiEvent) {
+        when (event) {
+            is DashboardUiEvent.UpdateQuantity -> {
+                updateQuantity(event.productId, event.newQuantity)
+            }
+            is DashboardUiEvent.RemoveItem -> {
+                removeFromCart(event.productId)
+            }
+            is DashboardUiEvent.ClearCart -> {
+                clearCart()
+            }
+            is DashboardUiEvent.PlaceOrder -> {
+                placeOrder()
+            }
+            is DashboardUiEvent.Refresh -> {
+                loadCartItems()
+            }
+        }
     }
 
     private fun loadCartItems() {
@@ -67,7 +92,12 @@ class DashboardViewModel @Inject constructor(
 
     fun clearCart() {
         viewModelScope.launch {
-            cartRepository.clearCart()
+            try {
+                cartRepository.clearCart()
+                _uiEffect.emit(DashboardUiEffect.ClearCartSuccess)
+            } catch (e: Exception) {
+                _uiEffect.emit(DashboardUiEffect.ShowError("Sepet temizlenemedi: ${e.message}"))
+            }
         }
     }
 
@@ -81,11 +111,13 @@ class DashboardViewModel @Inject constructor(
                 _uiState.update { 
                     it.copy(
                         isLoading = false,
-                        error = null,
-                        orderPlaced = true,
-                        orderNumber = orderNumber
+                        error = null
                     )
                 }
+                
+                // UI Effect emit et
+                _uiEffect.emit(DashboardUiEffect.ShowOrderSuccess(orderNumber))
+                
             } catch (e: Exception) {
                 _uiState.update { 
                     it.copy(
@@ -93,13 +125,14 @@ class DashboardViewModel @Inject constructor(
                         error = "Sipariş verilemedi: ${e.message}"
                     )
                 }
+                
+                // Error effect emit et
+                _uiEffect.emit(DashboardUiEffect.ShowError("Sipariş verilemedi: ${e.message}"))
             }
         }
     }
 
-    fun resetOrderPlaced() {
-        _uiState.update { it.copy(orderPlaced = false, orderNumber = null) }
-    }
+
 }
 
 data class DashboardUiState(
@@ -107,7 +140,5 @@ data class DashboardUiState(
     val cartItemCount: Int = 0,
     val totalPrice: Double = 0.0,
     val isLoading: Boolean = true,
-    val error: String? = null,
-    val orderPlaced: Boolean = false,
-    val orderNumber: String? = null
+    val error: String? = null
 )

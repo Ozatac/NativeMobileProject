@@ -35,10 +35,10 @@ class OrdersAdapter(
 
         fun bind(order: Order) {
             binding.apply {
-                orderNumberText.text = "Sipariş #${order.orderNumber}"
+                orderNumberText.text = "Order #${order.orderNumber}"
                 orderDateText.text = formatDate(order.orderDate)
                 totalAmountText.text = "$${String.format("%.2f", order.totalAmount)}"
-                itemCountText.text = "${order.items.size} ürün"
+                itemCountText.text = "${order.items.size} Product"
                 statusText.text = getStatusText(order.status)
 
                 root.setOnClickListener {

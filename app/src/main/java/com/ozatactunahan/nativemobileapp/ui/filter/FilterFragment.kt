@@ -6,13 +6,9 @@ import androidx.fragment.app.viewModels
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ozatactunahan.nativemobileapp.common.BaseFragment
+import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
 import com.ozatactunahan.nativemobileapp.databinding.FragmentFilterBinding
 import com.ozatactunahan.nativemobileapp.ui.home.HomeViewModel
-import com.ozatactunahan.nativemobileapp.ui.filter.BrandAdapter
-import com.ozatactunahan.nativemobileapp.ui.filter.ModelAdapter
-import com.ozatactunahan.nativemobileapp.ui.filter.SortByAdapter
-import com.ozatactunahan.nativemobileapp.ui.filter.FilterViewModel
 import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
 import dagger.hilt.android.AndroidEntryPoint
 

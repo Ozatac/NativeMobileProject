@@ -1,4 +1,4 @@
-package com.ozatactunahan.nativemobileapp.common
+package com.ozatactunahan.nativemobileapp.ui.base
 
 import android.os.Bundle
 import android.view.LayoutInflater

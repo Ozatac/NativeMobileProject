@@ -10,9 +10,8 @@
         android:id="@+id/cartRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomLayout"
+        app:layout_constraintBottom_toTopOf="@id/buttonsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,7 +21,7 @@
         android:id="@+id/emptyCartMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sepetiniz boş"
+        android:text="Your cart is empty"
         android:textSize="18sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,48 +29,126 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/bottomLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/bottom_nav_height"
-        android:gravity="center_vertical"
-        app:layout_constraintBottom_toBottomOf="parent">
+         <!-- Modern Buttons Container -->
+     <LinearLayout
+         android:id="@+id/buttonsContainer"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_marginHorizontal="16dp"
+         android:layout_marginBottom="16dp"
+         android:orientation="vertical"
+         app:layout_constraintBottom_toTopOf="@+id/bottomLayout">
 
-                        <TextView
-                    android:id="@+id/totalPriceText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="16dp"
-                    android:text="Toplam: $0.00"
-                    android:textColor="@color/blue_600"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+         <!-- Clear Cart Button -->
+         <com.google.android.material.card.MaterialCardView
+             android:id="@+id/clearCartButton"
+             android:layout_width="match_parent"
+             android:layout_height="56dp"
+             android:layout_marginBottom="12dp"
+             android:clickable="true"
+             android:focusable="true"
+             android:foreground="@drawable/button_ripple_effect"
+             app:cardBackgroundColor="@color/white"
+             app:cardCornerRadius="16dp"
+             app:cardElevation="4dp"
+             app:strokeColor="@color/error"
+             app:strokeWidth="2dp">
 
-                <Button
-                    android:id="@+id/placeOrderButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:backgroundTint="@color/blue_500"
-                    android:text="Sipariş Ver"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:enabled="false" />
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:gravity="center"
+                 android:orientation="horizontal"
+                 android:paddingHorizontal="24dp">
 
-                <Button
-                    android:id="@+id/clearCartButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:backgroundTint="@color/error"
-                    android:text="Sepeti Temizle"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
+                 <ImageView
+                     android:layout_width="24dp"
+                     android:layout_height="24dp"
+                     android:layout_marginEnd="12dp"
+                     android:src="@drawable/ic_clear_cart"
+                     app:tint="@color/error" />
 
-    </LinearLayout>
+                 <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:text="Clear Cart"
+                     android:textColor="@color/error"
+                     android:textSize="16sp"
+                     android:textStyle="bold" />
+
+             </LinearLayout>
+
+         </com.google.android.material.card.MaterialCardView>
+
+         <!-- Place Order Button -->
+         <com.google.android.material.card.MaterialCardView
+             android:id="@+id/placeOrderButton"
+             android:layout_width="match_parent"
+             android:layout_height="64dp"
+             android:clickable="true"
+             android:focusable="true"
+             android:foreground="@drawable/button_ripple_effect"
+             app:cardBackgroundColor="@color/blue_500"
+             app:cardCornerRadius="20dp"
+             app:cardElevation="8dp">
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:gravity="center"
+                 android:orientation="horizontal"
+                 android:paddingHorizontal="24dp">
+
+                 <ImageView
+                     android:layout_width="28dp"
+                     android:layout_height="28dp"
+                     android:layout_marginEnd="12dp"
+                     android:src="@drawable/ic_shopping_cart"
+                     app:tint="@color/white" />
+
+                 <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:text="Place Order"
+                     android:textColor="@color/white"
+                     android:textSize="18sp"
+                     android:textStyle="bold" />
+
+             </LinearLayout>
+
+         </com.google.android.material.card.MaterialCardView>
+
+     </LinearLayout>
+
+     <!-- Bottom Layout with Total Price -->
+     <LinearLayout
+         android:id="@+id/bottomLayout"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@drawable/bottom_gradient_background"
+         android:gravity="center_vertical"
+         android:orientation="horizontal"
+         android:paddingHorizontal="20dp"
+         android:paddingVertical="16dp"
+         app:layout_constraintBottom_toBottomOf="parent">
+
+         <TextView
+             android:id="@+id/totalPriceText"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:text="Total: $0.00"
+             android:textColor="@color/white"
+             android:textSize="22sp"
+             android:textStyle="bold" />
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="🛒"
+             android:textSize="24sp" />
+
+     </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -83,16 +160,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                android:id="@+id/errorText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:textColor="@color/error"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_notifications_black_24dp"
+            app:tint="@color/error" />
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:maxLines="3"
+            android:text="An error occurred"
+            android:textColor="@color/error"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/blue_500"
+                         android:text="Try Again"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Sipariş geçmişinizi görüntüleyin"
+            android:text="View your order history"
             android:textSize="16sp"
                             android:textColor="@color/gray_600"
             android:gravity="center" />
@@ -82,15 +82,56 @@
 
     </LinearLayout>
 
-    <!-- Loading -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+                 <!-- Error Layout -->
+             <LinearLayout
+                 android:id="@+id/errorLayout"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:orientation="vertical"
+                 android:gravity="center"
+                 android:visibility="gone"
+                 app:layout_constraintTop_toTopOf="parent"
+                 app:layout_constraintBottom_toBottomOf="parent"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintEnd_toEndOf="parent">
+
+                 <ImageView
+                     android:layout_width="80dp"
+                     android:layout_height="80dp"
+                     android:src="@drawable/ic_notifications_black_24dp"
+                     app:tint="@color/error" />
+
+                 <TextView
+                     android:id="@+id/errorText"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="16dp"
+                     android:text="An error occurred"
+                     android:textSize="16sp"
+                     android:textColor="@color/error"
+                     android:gravity="center"
+                     android:maxLines="3" />
+
+                 <Button
+                     android:id="@+id/retryButton"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginTop="16dp"
+                     android:text="Try Again"
+                     android:backgroundTint="@color/blue_500"
+                     android:textColor="@color/white" />
+
+             </LinearLayout>
+
+             <!-- Loading -->
+             <ProgressBar
+                 android:id="@+id/progressBar"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:visibility="gone"
+                 app:layout_constraintTop_toTopOf="parent"
+                 app:layout_constraintBottom_toBottomOf="parent"
+                 app:layout_constraintStart_toStartOf="parent"
+                 app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

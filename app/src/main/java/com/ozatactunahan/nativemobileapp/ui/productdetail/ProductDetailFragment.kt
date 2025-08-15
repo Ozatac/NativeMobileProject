@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.ozatactunahan.nativemobileapp.R
-import com.ozatactunahan.nativemobileapp.common.BaseFragment
+import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentProductDetailBinding
 import com.ozatactunahan.nativemobileapp.util.loadProductImage

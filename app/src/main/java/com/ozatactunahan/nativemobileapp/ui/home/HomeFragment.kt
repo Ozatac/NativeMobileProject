@@ -2,9 +2,9 @@ package com.ozatactunahan.nativemobileapp.ui.home
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,33 +12,32 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import com.ozatactunahan.nativemobileapp.R
-import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentHomeBinding
+import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
+import com.ozatactunahan.nativemobileapp.util.ErrorHandler
+import com.ozatactunahan.nativemobileapp.util.NetworkUtils
 import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: ProductPagingAdapter
+    
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(
-            view,
-            savedInstanceState
-        )
+        super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeData()
     }
@@ -47,13 +46,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         setupRecyclerView()
         setupSearchView()
         setupFilterButtons()
+        setupRetryButton()
     }
 
     private fun setupRecyclerView() {
         adapter = ProductPagingAdapter(
-            onProductClick = ::navigateToProductDetail,
-            onAddToCartClick = ::addToCart,
-            onFavoriteClick = ::toggleFavorite
+            onProductClick = { product -> viewModel.onUiEvent(HomeUiEvent.ProductClick(product)) },
+            onAddToCartClick = { product -> viewModel.onUiEvent(HomeUiEvent.AddToCartClick(product)) },
+            onFavoriteClick = { product, isFavorite -> viewModel.onUiEvent(HomeUiEvent.FavoriteClick(product)) }
         )
 
         val loadingFooterAdapter = LoadingFooterAdapter()
@@ -73,7 +73,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 viewModel.uiState.collect { uiState ->
                     handleUiState(uiState)
                     adapter.submitData(lifecycle, uiState.pagingData)
-
                 }
             }
         }
@@ -83,27 +82,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
 
         observeFavoriteStates()
+        
+        // UI Effect'leri dinle
+        collectLatestLifecycleFlow(viewModel.uiEffect) { effect ->
+            handleUiEffect(effect)
+        }
     }
 
     private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 query?.let {
-                    viewModel.searchProducts(it)
+                    viewModel.onUiEvent(HomeUiEvent.SearchSubmit(it))
                 }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                when {
-                    newText.isNullOrBlank() -> {
-                        viewModel.clearSearch()
-                    }
-
-                    newText.length >= 3 -> {
-                        viewModel.searchProducts(newText)
-                    }
-                }
+                viewModel.onUiEvent(HomeUiEvent.SearchQuery(newText.orEmpty()))
                 return true
             }
         })
@@ -113,8 +109,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         val isRefreshLoading = refresh is LoadState.Loading
         val isAppendLoading = append is LoadState.Loading
 
+        // Ana loading (refresh) için
         showLoading(isRefreshLoading)
-        showPagingLoading(isAppendLoading)
+        
+        // Paging loading (append) için LoadingFooterAdapter kullanılıyor
+        // showPagingLoading(isAppendLoading) - artık gerekli değil
 
         (refresh as? LoadState.Error)?.let {
             showError(it.error.message)
@@ -122,8 +121,31 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun handleUiState(uiState: HomeUiState) {
-        if (!uiState.isLoading) showLoading(true)
+        showLoading(uiState.isLoading)
         uiState.error?.let(::showError)
+    }
+
+    private fun handleUiEffect(effect: HomeUiEffect) {
+        when (effect) {
+            is HomeUiEffect.NavigateToProductDetail -> {
+                navigateToProductDetail(effect.product)
+            }
+            is HomeUiEffect.NavigateToFilter -> {
+                navigateToFilter()
+            }
+            is HomeUiEffect.ShowToast -> {
+                Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+            }
+            is HomeUiEffect.ShowSnackbar -> {
+                Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+            }
+            is HomeUiEffect.ShowError -> {
+                showError(effect.message)
+            }
+            is HomeUiEffect.ClearSearchView -> {
+                binding.searchView.setQuery("", false)
+            }
+        }
     }
 
     private fun showLoading(show: Boolean) {
@@ -133,15 +155,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun showPagingLoading(show: Boolean) {
-        binding.apply {
-            progressBar.isVisible = show
-        }
+        // Paging loading için ayrı bir loading gösterimi yok
+        // LoadingFooterAdapter zaten bu işi yapıyor
     }
 
     private fun showError(message: String?) {
-        binding.errorText.run {
-            isVisible = !message.isNullOrBlank()
-            text = message.orEmpty()
+        ErrorHandler.showError(
+            context = requireContext(),
+            errorLayout = binding.errorLayout,
+            errorText = binding.errorText,
+            retryButton = binding.retryButton,
+            message = message,
+            networkUtils = networkUtils
+        ) {
+            viewModel.onUiEvent(HomeUiEvent.Refresh)
         }
     }
 
@@ -150,14 +177,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             putParcelable("product", product)
         }
         findNavController().navigate(R.id.navigation_product_detail, bundle)
-    }
-
-    private fun addToCart(product: Product) {
-        viewModel.addToCart(product)
-    }
-
-    private fun toggleFavorite(product: Product, isFavorite: Boolean) {
-        viewModel.toggleFavorite(product)
     }
 
     private fun observeFavoriteStates() {
@@ -170,14 +189,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun setupFilterButtons() {
         binding.filterButton.setOnClickListener {
-            navigateToFilter()
+            viewModel.onUiEvent(HomeUiEvent.FilterButtonClick)
         }
 
         binding.filterButton.setOnLongClickListener {
-            viewModel.clearFilters()
+            viewModel.onUiEvent(HomeUiEvent.FilterButtonLongClick)
             true
         }
     }
+
+    private fun setupRetryButton() {
+        binding.retryButton.setOnClickListener {
+            viewModel.onUiEvent(HomeUiEvent.Refresh)
+        }
+    }
+    
+
 
     private fun navigateToFilter() {
         findNavController().navigate(R.id.filter_fragment)

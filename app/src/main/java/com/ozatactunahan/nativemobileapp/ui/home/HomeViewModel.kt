@@ -1,6 +1,5 @@
 package com.ozatactunahan.nativemobileapp.ui.home
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -9,6 +8,7 @@ import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
 import com.ozatactunahan.nativemobileapp.domain.repository.CartRepository
 import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.usecase.GetProductsUseCase
+import androidx.lifecycle.ViewModel
 import com.ozatactunahan.nativemobileapp.ui.filter.FilterResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +32,9 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _uiEffect = MutableSharedFlow<HomeUiEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
+
     private var originalPagingData: PagingData<Product> = PagingData.empty()
 
     private val _filterState = MutableStateFlow<FilterResult?>(null)
@@ -38,6 +43,45 @@ class HomeViewModel @Inject constructor(
     init {
         loadProducts()
         loadFavoriteStates()
+    }
+
+    fun onUiEvent(event: HomeUiEvent) {
+        when (event) {
+            is HomeUiEvent.ProductClick -> {
+                viewModelScope.launch {
+                    _uiEffect.emit(HomeUiEffect.NavigateToProductDetail(event.product))
+                }
+            }
+            is HomeUiEvent.AddToCartClick -> {
+                addToCart(event.product)
+            }
+            is HomeUiEvent.FavoriteClick -> {
+                toggleFavorite(event.product)
+            }
+            is HomeUiEvent.SearchQuery -> {
+                handleSearchQuery(event.query)
+            }
+            is HomeUiEvent.SearchSubmit -> {
+                searchProducts(event.query)
+            }
+            is HomeUiEvent.FilterButtonClick -> {
+                viewModelScope.launch {
+                    _uiEffect.emit(HomeUiEffect.NavigateToFilter())
+                }
+            }
+            is HomeUiEvent.FilterButtonLongClick -> {
+                clearFilters()
+            }
+            is HomeUiEvent.ClearSearch -> {
+                clearSearch()
+            }
+            is HomeUiEvent.ClearFilters -> {
+                clearFilters()
+            }
+            is HomeUiEvent.Refresh -> {
+                loadProducts()
+            }
+        }
     }
 
     fun loadProducts(searchQuery: String? = null) {
@@ -50,14 +94,12 @@ class HomeViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            error = exception.message ?: "Bir hata oluştu"
+                            error = exception.message ?: "An error occurred"
                         )
                     }
                 }
                 .collect { pagingData ->
-                    // Orijinal PagingData'yı sakla
                     originalPagingData = pagingData
-
                     _uiState.update { currentState ->
                         currentState.copy(
                             pagingData = pagingData,
@@ -83,6 +125,17 @@ class HomeViewModel @Inject constructor(
 
     fun clearSearch() {
         loadProducts(null)
+    }
+
+    private fun handleSearchQuery(query: String) {
+        when {
+            query.isBlank() -> {
+                clearSearch()
+            }
+            query.length >= 3 -> {
+                searchProducts(query)
+            }
+        }
     }
 
     fun toggleFavorite(product: Product) {
@@ -185,7 +238,6 @@ class HomeViewModel @Inject constructor(
                     pagingData = originalPagingData,
                     filteredProducts = emptyList(),
                     isFiltered = false,
-                    // EKLENEN: Refresh trigger
                     refreshTrigger = System.currentTimeMillis()
                 )
             }
@@ -207,7 +259,7 @@ class HomeViewModel @Inject constructor(
 
 data class HomeUiState(
     val pagingData: PagingData<Product> = PagingData.empty(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val error: String? = null,
     val favoriteStates: Map<String, Boolean> = emptyMap(),
     val searchQuery: String = "",

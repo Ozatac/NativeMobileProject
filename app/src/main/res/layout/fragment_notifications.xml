@@ -17,18 +17,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Error Text -->
-    <TextView
-        android:id="@+id/errorText"
-        android:layout_width="0dp"
+    <!-- Error Layout -->
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:orientation="vertical"
         android:gravity="center"
-                        android:textColor="@color/error"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_notifications_black_24dp"
+            app:tint="@color/error" />
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="An error occurred"
+            android:textSize="16sp"
+            android:textColor="@color/error"
+            android:gravity="center"
+            android:maxLines="3" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Try Again"
+            android:backgroundTint="@color/blue_500"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
 
     <!-- Empty State Text -->
     <TextView
@@ -37,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:text="Henüz favori ürününüz yok.\nAna sayfadan ürünleri favorilere ekleyebilirsiniz."
+        android:text="You don't have any favorite products yet.\nYou can add products to favorites from the home page."
         android:textAlignment="center"
         android:textColor="?android:attr/textColorSecondary"
         android:textSize="16sp"

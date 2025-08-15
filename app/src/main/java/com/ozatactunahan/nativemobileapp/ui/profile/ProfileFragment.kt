@@ -1,38 +1,30 @@
 package com.ozatactunahan.nativemobileapp.ui.profile
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ozatactunahan.nativemobileapp.databinding.FragmentProfileBinding
+import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
+import com.ozatactunahan.nativemobileapp.util.ErrorHandler
+import com.ozatactunahan.nativemobileapp.util.NetworkUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
-class ProfileFragment : Fragment() {
+class ProfileFragment : BaseFragment<FragmentProfileBinding>(FragmentProfileBinding::inflate) {
 
-    private var _binding: FragmentProfileBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var viewModel: ProfileViewModel
+    private val viewModel: ProfileViewModel by viewModels()
     private lateinit var ordersAdapter: OrdersAdapter
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentProfileBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        
-        viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         setupRecyclerView()
         observeViewModel()
     }
@@ -40,10 +32,10 @@ class ProfileFragment : Fragment() {
     private fun setupRecyclerView() {
         ordersAdapter = OrdersAdapter(
             onOrderClick = { order ->
-                // TODO: Navigate to order detail
+                viewModel.onUiEvent(ProfileUiEvent.OrderClick(order))
             },
             onDeleteOrder = { order ->
-                viewModel.deleteOrder(order.id)
+                viewModel.onUiEvent(ProfileUiEvent.DeleteOrder(order.id))
             }
         )
 
@@ -51,15 +43,27 @@ class ProfileFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = ordersAdapter
         }
+        
+        // Retry button click listener
+        binding.retryButton.setOnClickListener {
+            viewModel.onUiEvent(ProfileUiEvent.Refresh)
+        }
     }
 
-    private fun observeViewModel() {
+        private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { uiState ->
                 ordersAdapter.submitList(uiState.orders)
                 updateEmptyState(uiState.orders.isEmpty())
-                
+
                 binding.progressBar.visibility = if (uiState.isLoading) View.VISIBLE else View.GONE
+            }
+        }
+        
+        // UI Effect'leri dinle
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiEffect.collect { effect ->
+                handleUiEffect(effect)
             }
         }
     }
@@ -69,8 +73,34 @@ class ProfileFragment : Fragment() {
         binding.ordersRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun handleUiEffect(effect: ProfileUiEffect) {
+        when (effect) {
+            is ProfileUiEffect.ShowToast -> {
+                Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+            }
+            is ProfileUiEffect.ShowError -> {
+                showError(effect.message)
+            }
+            is ProfileUiEffect.NavigateToOrderDetail -> {
+                // TODO: Navigate to order detail
+                Toast.makeText(requireContext(), "Order details: ${effect.order.orderNumber}", Toast.LENGTH_SHORT).show()
+            }
+            is ProfileUiEffect.OrderDeletedSuccess -> {
+                Toast.makeText(requireContext(), "Order deleted successfully", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    private fun showError(message: String) {
+        ErrorHandler.showError(
+            context = requireContext(),
+            errorLayout = binding.errorLayout,
+            errorText = binding.errorText,
+            retryButton = binding.retryButton,
+            message = message,
+            networkUtils = networkUtils
+        ) {
+            viewModel.onUiEvent(ProfileUiEvent.Refresh)
+        }
     }
 }

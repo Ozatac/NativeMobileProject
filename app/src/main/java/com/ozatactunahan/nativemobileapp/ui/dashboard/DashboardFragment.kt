@@ -2,29 +2,33 @@ package com.ozatactunahan.nativemobileapp.ui.dashboard
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ozatactunahan.nativemobileapp.R
-import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.databinding.FragmentDashboardBinding
+import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
+import com.ozatactunahan.nativemobileapp.util.ErrorHandler
+import com.ozatactunahan.nativemobileapp.util.NetworkUtils
 import com.ozatactunahan.nativemobileapp.util.collectLatestLifecycleFlow
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboardBinding::inflate) {
 
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var cartAdapter: CartAdapter
+    
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(
-            view,
-            savedInstanceState
-        )
+        super.onViewCreated(view, savedInstanceState)
         setupUI()
         observeData()
     }
@@ -37,19 +41,23 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
     private fun setupRecyclerView() {
         cartAdapter = CartAdapter(
             onQuantityIncrease = { cartItem ->
-                viewModel.updateQuantity(
-                    cartItem.productId,
-                    cartItem.quantity + 1
+                viewModel.onUiEvent(
+                    DashboardUiEvent.UpdateQuantity(
+                        cartItem.productId,
+                        cartItem.quantity + 1
+                    )
                 )
             },
             onQuantityDecrease = { cartItem ->
-                viewModel.updateQuantity(
-                    cartItem.productId,
-                    cartItem.quantity - 1
+                viewModel.onUiEvent(
+                    DashboardUiEvent.UpdateQuantity(
+                        cartItem.productId,
+                        cartItem.quantity - 1
+                    )
                 )
             },
             onRemoveItem = { cartItem ->
-                viewModel.removeFromCart(cartItem.productId)
+                viewModel.onUiEvent(DashboardUiEvent.RemoveItem(cartItem.productId))
             }
         )
 
@@ -61,17 +69,27 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
 
     private fun setupClickListeners() {
         binding.clearCartButton.setOnClickListener {
-            viewModel.clearCart()
+            viewModel.onUiEvent(DashboardUiEvent.ClearCart)
         }
 
         binding.placeOrderButton.setOnClickListener {
-            viewModel.placeOrder()
+            viewModel.onUiEvent(DashboardUiEvent.PlaceOrder)
+        }
+        
+        binding.retryButton.setOnClickListener {
+            viewModel.onUiEvent(DashboardUiEvent.Refresh)
         }
     }
+    
+
 
     private fun observeData() {
         collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
             handleUiState(uiState)
+        }
+
+        collectLatestLifecycleFlow(viewModel.uiEffect) { effect ->
+            handleUiEffect(effect)
         }
     }
 
@@ -81,26 +99,31 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                 progressBar.visibility = View.GONE
             }
 
-            uiState.error?.let { error ->
-                errorText.text = error
-                errorText.visibility = View.VISIBLE
-            }
+                         uiState.error?.let { error ->
+                 showError(error)
+             }
 
             // Sepet öğelerini göster
             cartAdapter.submitList(uiState.cartItems)
 
             // Toplam fiyatı göster
-            totalPriceText.text = "Toplam: $${
+            totalPriceText.text = "Total: $${
                 String.format(
                     "%.2f",
                     uiState.totalPrice
                 )
             }"
 
-            // Sipariş ver butonunu aktif/pasif yap
-            placeOrderButton.isEnabled = uiState.cartItems.isNotEmpty()
+            binding.placeOrderButton.isEnabled = uiState.cartItems.isNotEmpty()
+            
+            if (uiState.cartItems.isNotEmpty()) {
+                binding.placeOrderButton.alpha = 1.0f
+                binding.placeOrderButton.cardElevation = 8f
+            } else {
+                binding.placeOrderButton.alpha = 0.6f
+                binding.placeOrderButton.cardElevation = 2f
+            }
 
-            // Sepet boşsa mesaj göster
             if (uiState.cartItems.isEmpty()) {
                 emptyCartMessage.visibility = View.VISIBLE
                 cartRecyclerView.visibility = View.GONE
@@ -114,28 +137,74 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                 placeOrderButton.visibility = View.VISIBLE
                 clearCartButton.visibility = View.VISIBLE
             }
+        }
+    }
 
-            // Sipariş başarılı mesajı
-            if (uiState.orderPlaced) {
-                showOrderSuccessDialog(uiState.orderNumber)
-                // State'i reset'le ki tekrar gösterilmesin
-                viewModel.resetOrderPlaced()
+    private fun showError(message: String) {
+        ErrorHandler.showError(
+            context = requireContext(),
+            errorLayout = binding.errorLayout,
+            errorText = binding.errorText,
+            retryButton = binding.retryButton,
+            message = message,
+            networkUtils = networkUtils
+        ) {
+            viewModel.onUiEvent(DashboardUiEvent.Refresh)
+        }
+    }
+
+    private fun handleUiEffect(effect: DashboardUiEffect) {
+        when (effect) {
+            is DashboardUiEffect.ShowOrderSuccess -> {
+                showOrderSuccessDialog(effect.orderNumber)
+            }
+
+            is DashboardUiEffect.ShowError -> {
+                showError(effect.message)
+            }
+
+            is DashboardUiEffect.ShowToast -> {
+                Toast.makeText(
+                    requireContext(),
+                    effect.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is DashboardUiEffect.NavigateToProfile -> {
+                try {
+                    findNavController().navigate(R.id.navigation_profile)
+                } catch (e: Exception) {
+                    android.util.Log.e(
+                        "DashboardFragment",
+                        "Navigation error",
+                        e
+                    )
+                }
+            }
+
+            is DashboardUiEffect.ClearCartSuccess -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Cart cleared successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
     private fun showOrderSuccessDialog(orderNumber: String?) {
         val message = if (orderNumber != null) {
-            "Siparişiniz başarıyla alındı! Sipariş numarası: $orderNumber"
+            "Your order has been received successfully! Order number: $orderNumber"
         } else {
-            "Siparişiniz başarıyla alındı!"
+            "Your order has been received successfully!"
         }
 
         // Toast mesajı göster
-        android.widget.Toast.makeText(
+        Toast.makeText(
             requireContext(),
             message,
-            android.widget.Toast.LENGTH_LONG
+            Toast.LENGTH_LONG
         ).show()
 
         // Kısa bir gecikme sonra profile ekranına git
