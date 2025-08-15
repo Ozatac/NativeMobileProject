@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#666666"
+                android:textColor="@color/gray_600"
                 android:textSize="14sp"
                 tools:text="Marka" />
 
@@ -68,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="#FF5722"
+                android:textColor="@color/blue_600"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 tools:text="$99.99" />

@@ -2,13 +2,17 @@ package com.ozatactunahan.nativemobileapp.ui.productdetail
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.ozatactunahan.nativemobileapp.R
 import com.ozatactunahan.nativemobileapp.common.BaseFragment
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentProductDetailBinding
 import com.ozatactunahan.nativemobileapp.util.loadProductImage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>(FragmentProductDetailBinding::inflate) {
@@ -62,11 +66,10 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>(Fragmen
     }
 
     private fun addToCart(product: Product) {
-        // TODO: Sepete ekleme işlemi
+        viewModel.addToCart(product)
     }
 
     private fun updateFavoriteIcon(productId: String) {
-        // TODO: Favori durumunu ViewModel'den al ve ikonu güncelle
         viewModel.isFavorite(productId).observe(viewLifecycleOwner) { isFavorite ->
             val favoriteIcon = if (isFavorite) {
                 R.drawable.ic_favorite_filled
@@ -78,7 +81,36 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>(Fragmen
     }
 
     private fun observeData() {
-        // TODO: ViewModel'den veri observe et
+        viewModel.cartState.observe(viewLifecycleOwner) { cartState ->
+            when (cartState) {
+                is ProductDetailViewModel.CartState.Loading -> {
+                    binding.productDetailAddToCartButton.isEnabled = false
+                    binding.productDetailAddToCartButton.text = "Ekleniyor..."
+                }
+                is ProductDetailViewModel.CartState.Success -> {
+                    binding.productDetailAddToCartButton.isEnabled = true
+                    binding.productDetailAddToCartButton.text = "Sepete Eklendi!"
+                    Toast.makeText(requireContext(), cartState.message, Toast.LENGTH_SHORT).show()
+                    
+                    // 2 saniye sonra buton metnini geri al - lifecycle-aware yaklaşım
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        delay(2000)
+                        if (isAdded && !isDetached && view != null) {
+                            try {
+                                binding.productDetailAddToCartButton.text = "Sepete Ekle"
+                            } catch (e: Exception) {
+                                android.util.Log.d("ProductDetailFragment", "Binding null, buton metni güncellenmedi")
+                            }
+                        }
+                    }
+                }
+                is ProductDetailViewModel.CartState.Error -> {
+                    binding.productDetailAddToCartButton.isEnabled = true
+                    binding.productDetailAddToCartButton.text = "Sepete Ekle"
+                    Toast.makeText(requireContext(), cartState.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private fun setupToolbar() {

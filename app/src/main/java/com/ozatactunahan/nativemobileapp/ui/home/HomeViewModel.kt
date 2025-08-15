@@ -3,8 +3,10 @@ package com.ozatactunahan.nativemobileapp.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
+import com.ozatactunahan.nativemobileapp.domain.repository.CartRepository
 import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.usecase.GetProductsUseCase
 import com.ozatactunahan.nativemobileapp.ui.filter.FilterResult
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
     private val favoriteRepository: FavoriteRepository,
+    private val cartRepository: CartRepository,
     private val productRepository: ProductRepositoryImpl
 ) : ViewModel() {
 
@@ -42,6 +45,7 @@ class HomeViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             getProductsUseCase(searchQuery)
+                .cachedIn(viewModelScope) // Bu satırı ekledik
                 .catch { exception ->
                     _uiState.update {
                         it.copy(
@@ -184,6 +188,18 @@ class HomeViewModel @Inject constructor(
                     // EKLENEN: Refresh trigger
                     refreshTrigger = System.currentTimeMillis()
                 )
+            }
+        }
+    }
+
+    fun addToCart(product: Product) {
+        viewModelScope.launch {
+            try {
+                cartRepository.addToCart(product)
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(error = "Sepete ekleme hatası: ${e.message}")
+                }
             }
         }
     }

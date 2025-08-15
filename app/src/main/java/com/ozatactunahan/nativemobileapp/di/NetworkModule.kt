@@ -1,6 +1,7 @@
 package com.ozatactunahan.nativemobileapp.di
 
 import com.ozatactunahan.nativemobileapp.data.remote.ProductApiService
+import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
@@ -34,6 +35,6 @@ object NetworkModule {
     fun provideProductRepository(
         apiService: ProductApiService
     ): ProductRepository {
-        return com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl(apiService)
+        return ProductRepositoryImpl(apiService)
     }
 }

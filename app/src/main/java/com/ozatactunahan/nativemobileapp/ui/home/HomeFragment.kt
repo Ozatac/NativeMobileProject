@@ -56,9 +56,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             onFavoriteClick = ::toggleFavorite
         )
 
+        val loadingFooterAdapter = LoadingFooterAdapter()
+        
+        // ConcatAdapter ile ana adapter ve loading footer'ı birleştir
+        val concatAdapter = androidx.recyclerview.widget.ConcatAdapter(adapter, loadingFooterAdapter)
+        
         binding.recyclerView.apply {
             layoutManager = GridLayoutManager(context, 2)
-            adapter = this@HomeFragment.adapter
+            adapter = concatAdapter
         }
     }
 
@@ -148,7 +153,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun addToCart(product: Product) {
-        // TODO: Add to cart functionality
+        viewModel.addToCart(product)
     }
 
     private fun toggleFavorite(product: Product, isFavorite: Boolean) {
