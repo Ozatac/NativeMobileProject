@@ -38,10 +38,6 @@ class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(Fragmen
     }
 
     private fun setupRecyclerView() {
-        // Notifications için basit bir liste gösterimi
-        // Gerçek uygulamada RecyclerView adapter kullanılabilir
-
-        // Retry button click listener
         binding.retryButton.setOnClickListener {
             viewModel.onUiEvent(NotificationsUiEvent.Refresh)
         }
@@ -52,7 +48,6 @@ class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(Fragmen
             handleUiState(uiState)
         }
 
-        // UI Effect'leri dinle
         collectLatestLifecycleFlow(viewModel.uiEffect) { effect ->
             handleUiEffect(effect)
         }

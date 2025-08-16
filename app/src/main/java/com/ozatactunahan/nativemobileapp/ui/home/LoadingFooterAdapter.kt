@@ -11,7 +11,6 @@ import com.ozatactunahan.nativemobileapp.databinding.ItemLoadingFooterBinding
 class LoadingFooterAdapter : LoadStateAdapter<LoadingFooterAdapter.LoadingFooterViewHolder>() {
 
     override fun onBindViewHolder(holder: LoadingFooterViewHolder, loadState: LoadState) {
-        // LoadState'e göre UI'ı güncelle
         holder.bind(loadState)
     }
 

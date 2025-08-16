@@ -13,7 +13,8 @@ import com.ozatactunahan.nativemobileapp.databinding.ItemCartProductBinding
 class CartAdapter(
     private val onQuantityIncrease: (CartItem) -> Unit,
     private val onQuantityDecrease: (CartItem) -> Unit,
-    private val onRemoveItem: (CartItem) -> Unit
+    private val onRemoveItem: (CartItem) -> Unit,
+    private val onProductClick: (CartItem) -> Unit
 ) : ListAdapter<CartItem, CartAdapter.CartViewHolder>(CartDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
@@ -40,7 +41,6 @@ class CartAdapter(
                 productPrice.text = "$${cartItem.productPrice}"
                 quantityText.text = cartItem.quantity.toString()
 
-                // Resim yükleme
                 Glide.with(productImage.context)
                     .load(cartItem.productImage)
                     .placeholder(R.drawable.placeholder_image)
@@ -48,7 +48,6 @@ class CartAdapter(
                     .centerCrop()
                     .into(productImage)
 
-                // Quantity artırma/azaltma
                 increaseButton.setOnClickListener {
                     onQuantityIncrease(cartItem)
                 }
@@ -59,13 +58,15 @@ class CartAdapter(
                     }
                 }
 
-                // Ürünü kaldırma
                 removeButton.setOnClickListener {
                     onRemoveItem(cartItem)
                 }
 
-                // Quantity 1 ise decrease butonunu devre dışı bırak
                 decreaseButton.isEnabled = cartItem.quantity > 1
+
+                root.setOnClickListener {
+                    onProductClick(cartItem)
+                }
             }
         }
     }

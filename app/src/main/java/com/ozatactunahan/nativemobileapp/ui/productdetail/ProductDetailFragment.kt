@@ -92,7 +92,6 @@ class ProductDetailFragment : BaseFragment<FragmentProductDetailBinding>(Fragmen
                     binding.productDetailAddToCartButton.text = "Sepete Eklendi!"
                     Toast.makeText(requireContext(), cartState.message, Toast.LENGTH_SHORT).show()
                     
-                    // 2 saniye sonra buton metnini geri al - lifecycle-aware yaklaşım
                     viewLifecycleOwner.lifecycleScope.launch {
                         delay(2000)
                         if (isAdded && !isDetached && view != null) {

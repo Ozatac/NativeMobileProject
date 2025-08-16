@@ -7,6 +7,8 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ozatactunahan.nativemobileapp.R
+import com.ozatactunahan.nativemobileapp.data.model.CartItem
+import com.ozatactunahan.nativemobileapp.data.model.Product
 import com.ozatactunahan.nativemobileapp.databinding.FragmentDashboardBinding
 import com.ozatactunahan.nativemobileapp.ui.base.BaseFragment
 import com.ozatactunahan.nativemobileapp.util.ErrorHandler
@@ -58,6 +60,9 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
             },
             onRemoveItem = { cartItem ->
                 viewModel.onUiEvent(DashboardUiEvent.RemoveItem(cartItem.productId))
+            },
+            onProductClick = { cartItem ->
+                navigateToProductDetail(cartItem)
             }
         )
 
@@ -103,10 +108,8 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                  showError(error)
              }
 
-            // Sepet öğelerini göster
             cartAdapter.submitList(uiState.cartItems)
 
-            // Toplam fiyatı göster
             totalPriceText.text = "Total: $${
                 String.format(
                     "%.2f",
@@ -114,14 +117,14 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                 )
             }"
 
-            binding.placeOrderButton.isEnabled = uiState.cartItems.isNotEmpty()
+            placeOrderButton.isEnabled = uiState.cartItems.isNotEmpty()
             
             if (uiState.cartItems.isNotEmpty()) {
-                binding.placeOrderButton.alpha = 1.0f
-                binding.placeOrderButton.cardElevation = 8f
+                placeOrderButton.alpha = 1.0f
+                placeOrderButton.cardElevation = 8f
             } else {
-                binding.placeOrderButton.alpha = 0.6f
-                binding.placeOrderButton.cardElevation = 2f
+                placeOrderButton.alpha = 0.6f
+                placeOrderButton.cardElevation = 2f
             }
 
             if (uiState.cartItems.isEmpty()) {
@@ -193,6 +196,33 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
         }
     }
 
+    private fun navigateToProductDetail(cartItem: CartItem) {
+        val product = Product(
+            id = cartItem.productId,
+            name = cartItem.productName,
+            brand = cartItem.productBrand,
+            model = "",
+            price = cartItem.productPrice,
+            image = cartItem.productImage,
+            createdAt = "",
+            description = ""
+        )
+        
+        val bundle = Bundle().apply {
+            putParcelable("product", product)
+        }
+        
+        try {
+            findNavController().navigate(R.id.navigation_product_detail, bundle)
+        } catch (e: Exception) {
+            android.util.Log.e(
+                "DashboardFragment",
+                "Navigation to product detail error",
+                e
+            )
+        }
+    }
+
     private fun showOrderSuccessDialog(orderNumber: String?) {
         val message = if (orderNumber != null) {
             "Your order has been received successfully! Order number: $orderNumber"
@@ -200,18 +230,15 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
             "Your order has been received successfully!"
         }
 
-        // Toast mesajı göster
         Toast.makeText(
             requireContext(),
             message,
             Toast.LENGTH_LONG
         ).show()
 
-        // Kısa bir gecikme sonra profile ekranına git
         binding.root.postDelayed(
             {
                 try {
-                    // Navigation stack'i temizle ve Profile'a git
                     val navController = findNavController()
                     if (navController.currentDestination?.id == R.id.navigation_dashboard) {
                         navController.navigate(R.id.navigation_profile) {
@@ -227,6 +254,6 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                 }
             },
             2000
-        ) // 2 saniye sonra git
+        )
     }
 }

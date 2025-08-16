@@ -115,7 +115,6 @@ class DashboardViewModel @Inject constructor(
                     )
                 }
                 
-                // UI Effect emit et
                 _uiEffect.emit(DashboardUiEffect.ShowOrderSuccess(orderNumber))
                 
             } catch (e: Exception) {
@@ -126,7 +125,6 @@ class DashboardViewModel @Inject constructor(
                     )
                 }
                 
-                // Error effect emit et
                 _uiEffect.emit(DashboardUiEffect.ShowError("Sipariş verilemedi: ${e.message}"))
             }
         }

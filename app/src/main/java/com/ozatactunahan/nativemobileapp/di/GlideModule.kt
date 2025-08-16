@@ -12,8 +12,7 @@ class MyAppGlideModule : AppGlideModule() {
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         super.applyOptions(context, builder)
         
-        // Memory cache size (25% of available memory)
-        val memoryCacheSizeBytes = 1024 * 1024 * 25 // 25 MB
+        val memoryCacheSizeBytes = 1024 * 1024 * 25
         builder.setMemoryCache(LruResourceCache(memoryCacheSizeBytes.toLong()))
     }
 

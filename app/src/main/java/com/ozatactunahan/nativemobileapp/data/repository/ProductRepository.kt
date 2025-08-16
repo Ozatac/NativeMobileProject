@@ -29,7 +29,6 @@ class ProductRepositoryImpl @Inject constructor(
             }).flow
     }
 
-    // Senkron ürün listesi almak için
     suspend fun getProductsSync(): List<Product> {
         return try {
             apiService.getProducts()

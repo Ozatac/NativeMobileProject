@@ -40,7 +40,6 @@ class NotificationsViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             
-            // Simulate loading notifications
             kotlinx.coroutines.delay(1000)
             
             _uiState.update { 

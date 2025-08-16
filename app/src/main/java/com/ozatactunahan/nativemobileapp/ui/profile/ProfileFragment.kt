@@ -44,7 +44,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(FragmentProfileBind
             adapter = ordersAdapter
         }
         
-        // Retry button click listener
         binding.retryButton.setOnClickListener {
             viewModel.onUiEvent(ProfileUiEvent.Refresh)
         }
@@ -60,7 +59,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(FragmentProfileBind
             }
         }
         
-        // UI Effect'leri dinle
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiEffect.collect { effect ->
                 handleUiEffect(effect)
@@ -82,7 +80,6 @@ class ProfileFragment : BaseFragment<FragmentProfileBinding>(FragmentProfileBind
                 showError(effect.message)
             }
             is ProfileUiEffect.NavigateToOrderDetail -> {
-                // TODO: Navigate to order detail
                 Toast.makeText(requireContext(), "Order details: ${effect.order.orderNumber}", Toast.LENGTH_SHORT).show()
             }
             is ProfileUiEffect.OrderDeletedSuccess -> {

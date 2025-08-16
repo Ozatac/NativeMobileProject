@@ -33,7 +33,6 @@ class ProductPagingSource(
                 response
             }
 
-            // Manuel pagination yapıyoruz
             val startIndex = (page - 1) * pageSize
             val endIndex = minOf(startIndex + pageSize, filteredProducts.size)
 

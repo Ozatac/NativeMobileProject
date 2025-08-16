@@ -56,7 +56,6 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideFavoriteRepository(): FavoriteRepository {
-        // TODO: Implement FavoriteRepository
         return object : FavoriteRepository {
             override fun getAllFavorites(): kotlinx.coroutines.flow.Flow<List<com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity>> {
                 return kotlinx.coroutines.flow.flowOf(emptyList())

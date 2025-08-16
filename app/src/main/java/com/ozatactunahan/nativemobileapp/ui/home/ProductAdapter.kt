@@ -52,7 +52,6 @@ class ProductAdapter(
                 }
 
                 favoriteButton.setOnClickListener {
-                    // TODO: Burada favori durumunu kontrol etmek için callback kullanılacak
                     onFavoriteClick(product, true)
                 }
             }

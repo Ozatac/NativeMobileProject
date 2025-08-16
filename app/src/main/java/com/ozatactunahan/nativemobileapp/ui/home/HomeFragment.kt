@@ -58,7 +58,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
         val loadingFooterAdapter = LoadingFooterAdapter()
         
-        // ConcatAdapter ile ana adapter ve loading footer'ı birleştir
         val concatAdapter = androidx.recyclerview.widget.ConcatAdapter(adapter, loadingFooterAdapter)
         
         binding.recyclerView.apply {
@@ -83,7 +82,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
         observeFavoriteStates()
         
-        // UI Effect'leri dinle
         collectLatestLifecycleFlow(viewModel.uiEffect) { effect ->
             handleUiEffect(effect)
         }
@@ -109,12 +107,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         val isRefreshLoading = refresh is LoadState.Loading
         val isAppendLoading = append is LoadState.Loading
 
-        // Ana loading (refresh) için
         showLoading(isRefreshLoading)
         
-        // Paging loading (append) için LoadingFooterAdapter kullanılıyor
-        // showPagingLoading(isAppendLoading) - artık gerekli değil
-
         (refresh as? LoadState.Error)?.let {
             showError(it.error.message)
         }
@@ -155,8 +149,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun showPagingLoading(show: Boolean) {
-        // Paging loading için ayrı bir loading gösterimi yok
-        // LoadingFooterAdapter zaten bu işi yapıyor
     }
 
     private fun showError(message: String?) {
