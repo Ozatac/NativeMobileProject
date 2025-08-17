@@ -19,8 +19,6 @@ data class ErrorState(
             ErrorType.NONE -> ""
         }
     }
-    
-    fun shouldShowError(): Boolean = message != null && errorType != ErrorType.NONE
 }
 
 enum class ErrorType {

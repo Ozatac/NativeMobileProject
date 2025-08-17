@@ -117,7 +117,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun handleLoadStates(loadStates: CombinedLoadStates) = with(loadStates) {
         val isRefreshLoading = refresh is LoadState.Loading
-        val isAppendLoading = append is LoadState.Loading
 
         showLoading(isRefreshLoading)
 
@@ -175,8 +174,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             progressBar.isVisible = show
         }
     }
-
-    private fun showPagingLoading(show: Boolean) {}
 
     private fun showError(message: String?) {
         ErrorHandler.showError(

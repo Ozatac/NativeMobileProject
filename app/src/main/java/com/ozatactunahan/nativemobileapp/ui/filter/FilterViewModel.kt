@@ -53,21 +53,21 @@ class FilterViewModel @Inject constructor(
 
                 val allProducts = productRepository.getProductsSync()
 
-                val brandList = allProducts.map { it.brand ?: "" }.filter { it.isNotBlank() }.distinct().sorted().map {
-                        FilterItem(
-                            it,
-                            it,
-                            false
-                        )
-                    }
+                val brandList = allProducts.map { it.brand }.filter { it.isNotBlank() }.distinct().sorted().map {
+                    FilterItem(
+                        it,
+                        it,
+                        false
+                    )
+                }
 
-                val modelList = allProducts.map { it.model ?: "" }.filter { it.isNotBlank() }.distinct().sorted().map {
-                        FilterItem(
-                            it,
-                            it,
-                            false
-                        )
-                    }
+                val modelList = allProducts.map { it.model }.filter { it.isNotBlank() }.distinct().sorted().map {
+                    FilterItem(
+                        it,
+                        it,
+                        false
+                    )
+                }
 
 
                 _uiState.update {
@@ -81,7 +81,8 @@ class FilterViewModel @Inject constructor(
                     )
                 }
 
-            } catch (e: Exception) { }
+            } catch (_: Exception) {
+            }
         }
     }
 

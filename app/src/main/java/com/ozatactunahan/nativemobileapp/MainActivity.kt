@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 cartRepository.getCartItemCount().collect { count ->
                     updateBadge(count = count)
                 }
-            } catch (e: Exception) { }
+            } catch (_: Exception) { }
         }
     }
 

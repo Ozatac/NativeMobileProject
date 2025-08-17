@@ -22,7 +22,7 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
 
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var cartAdapter: CartAdapter
-    
+
     @Inject
     lateinit var networkUtils: NetworkUtils
 
@@ -30,7 +30,10 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(
+            view,
+            savedInstanceState
+        )
         setupUI()
         observeData()
     }
@@ -63,8 +66,7 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
             },
             onProductClick = { cartItem ->
                 navigateToProductDetail(cartItem)
-            }
-        )
+            })
 
         binding.cartRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -80,12 +82,11 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
         binding.placeOrderButton.setOnClickListener {
             viewModel.onUiEvent(DashboardUiEvent.PlaceOrder)
         }
-        
+
         binding.retryButton.setOnClickListener {
             viewModel.onUiEvent(DashboardUiEvent.Refresh)
         }
     }
-    
 
 
     private fun observeData() {
@@ -104,9 +105,9 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                 progressBar.visibility = View.GONE
             }
 
-                         uiState.error?.let { error ->
-                 showError(error)
-             }
+            uiState.error?.let { error ->
+                showError(error)
+            }
 
             cartAdapter.submitList(uiState.cartItems)
 
@@ -118,7 +119,7 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
             }"
 
             placeOrderButton.isEnabled = uiState.cartItems.isNotEmpty()
-            
+
             if (uiState.cartItems.isNotEmpty()) {
                 placeOrderButton.alpha = 1.0f
                 placeOrderButton.cardElevation = 8f
@@ -207,13 +208,19 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
             createdAt = "",
             description = ""
         )
-        
+
         val bundle = Bundle().apply {
-            putParcelable("product", product)
+            putParcelable(
+                "product",
+                product
+            )
         }
-        
+
         try {
-            findNavController().navigate(R.id.navigation_product_detail, bundle)
+            findNavController().navigate(
+                R.id.navigation_product_detail,
+                bundle
+            )
         } catch (e: Exception) {
             android.util.Log.e(
                 "DashboardFragment",

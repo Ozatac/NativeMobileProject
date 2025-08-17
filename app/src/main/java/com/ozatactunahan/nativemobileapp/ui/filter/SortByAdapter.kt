@@ -11,7 +11,10 @@ class SortByAdapter(
     private val onSortOptionClick: (SortOption) -> Unit
 ) : ListAdapter<SortOption, SortByAdapter.SortByViewHolder>(SortByDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SortByViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): SortByViewHolder {
         val binding = ItemSortByBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -20,7 +23,10 @@ class SortByAdapter(
         return SortByViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: SortByViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: SortByViewHolder,
+        position: Int
+    ) {
         holder.bind(getItem(position))
     }
 
@@ -45,11 +51,17 @@ class SortByAdapter(
     }
 
     private class SortByDiffCallback : DiffUtil.ItemCallback<SortOption>() {
-        override fun areItemsTheSame(oldItem: SortOption, newItem: SortOption): Boolean {
+        override fun areItemsTheSame(
+            oldItem: SortOption,
+            newItem: SortOption
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: SortOption, newItem: SortOption): Boolean {
+        override fun areContentsTheSame(
+            oldItem: SortOption,
+            newItem: SortOption
+        ): Boolean {
             return oldItem == newItem
         }
     }

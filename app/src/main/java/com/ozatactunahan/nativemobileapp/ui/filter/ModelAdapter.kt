@@ -11,7 +11,10 @@ class ModelAdapter(
     private val onModelToggle: (FilterItem, Boolean) -> Unit
 ) : ListAdapter<FilterItem, ModelAdapter.ModelViewHolder>(ModelDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModelViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ModelViewHolder {
         val binding = ItemModelBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
@@ -20,7 +23,10 @@ class ModelAdapter(
         return ModelViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ModelViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ModelViewHolder,
+        position: Int
+    ) {
         holder.bind(getItem(position))
     }
 
@@ -34,24 +40,36 @@ class ModelAdapter(
                 modelCheckBox.isChecked = model.isSelected
 
                 modelCheckBox.setOnCheckedChangeListener { _, isChecked ->
-                    onModelToggle(model, isChecked)
+                    onModelToggle(
+                        model,
+                        isChecked
+                    )
                 }
 
                 root.setOnClickListener {
                     val newCheckedState = !modelCheckBox.isChecked
                     modelCheckBox.isChecked = newCheckedState
-                    onModelToggle(model, newCheckedState)
+                    onModelToggle(
+                        model,
+                        newCheckedState
+                    )
                 }
             }
         }
     }
 
     private class ModelDiffCallback : DiffUtil.ItemCallback<FilterItem>() {
-        override fun areItemsTheSame(oldItem: FilterItem, newItem: FilterItem): Boolean {
+        override fun areItemsTheSame(
+            oldItem: FilterItem,
+            newItem: FilterItem
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: FilterItem, newItem: FilterItem): Boolean {
+        override fun areContentsTheSame(
+            oldItem: FilterItem,
+            newItem: FilterItem
+        ): Boolean {
             return oldItem == newItem
         }
     }

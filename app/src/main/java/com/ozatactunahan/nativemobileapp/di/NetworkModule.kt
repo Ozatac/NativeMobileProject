@@ -3,6 +3,7 @@ package com.ozatactunahan.nativemobileapp.di
 import com.ozatactunahan.nativemobileapp.data.remote.ProductApiService
 import com.ozatactunahan.nativemobileapp.data.repository.ProductRepositoryImpl
 import com.ozatactunahan.nativemobileapp.domain.repository.ProductRepository
+import com.ozatactunahan.nativemobileapp.util.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +20,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://5fc9346b2af77700165ae514.mockapi.io/")
+            .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
