@@ -129,7 +129,7 @@ A modern Android e-commerce application built with Clean Architecture, MVVM patt
 <img width="200" height="400" alt="Screenshot 2025-08-17 at 23 58 21" src="https://github.com/user-attachments/assets/2ac6aea6-52a5-4a93-9735-543d1358a5df" />
 
 ### Filter
-<img width="420" height="400" alt="Screenshot 2025-08-17 at 23 57 59" src="https://github.com/user-attachments/assets/db1a1b48-f41e-4021-afa7-48597dce9169" />
+<img width="200" height="400" alt="Screenshot 2025-08-17 at 23 57 59" src="https://github.com/user-attachments/assets/db1a1b48-f41e-4021-afa7-48597dce9169" />
 
 ## 🚀 Getting Started
 
