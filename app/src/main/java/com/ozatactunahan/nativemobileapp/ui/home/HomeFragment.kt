@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import com.ozatactunahan.nativemobileapp.R
 import com.ozatactunahan.nativemobileapp.data.model.Product
@@ -60,7 +61,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
         val loadingFooterAdapter = LoadingFooterAdapter()
 
-        val concatAdapter = androidx.recyclerview.widget.ConcatAdapter(
+        val concatAdapter = ConcatAdapter(
             adapter,
             loadingFooterAdapter
         )
