@@ -2,6 +2,8 @@ package com.ozatactunahan.nativemobileapp.ui.notifications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity
+import com.ozatactunahan.nativemobileapp.domain.repository.FavoriteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +15,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NotificationsViewModel @Inject constructor() : ViewModel() {
+class NotificationsViewModel @Inject constructor(
+    private val favoriteRepository: FavoriteRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NotificationsUiState())
     val uiState: StateFlow<NotificationsUiState> = _uiState.asStateFlow()
@@ -22,53 +26,79 @@ class NotificationsViewModel @Inject constructor() : ViewModel() {
     val uiEffect = _uiEffect.asSharedFlow()
 
     init {
-        loadNotifications()
+        loadFavorites()
     }
 
     fun onUiEvent(event: NotificationsUiEvent) {
         when (event) {
             is NotificationsUiEvent.Refresh -> {
-                loadNotifications()
+                loadFavorites()
+            }
+            is NotificationsUiEvent.RemoveFromFavorites -> {
+                removeFromFavorites(event.favoriteEntity)
             }
             is NotificationsUiEvent.ClearAll -> {
-                clearAllNotifications()
+                clearAllFavorites()
             }
         }
     }
 
-    private fun loadNotifications() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            
-            kotlinx.coroutines.delay(1000)
-            
-            _uiState.update { 
-                it.copy(
-                    isLoading = false,
-                    notifications = listOf(
-                        "Yeni ürün eklendi: iPhone 15",
-                        "Siparişiniz kargoya verildi",
-                        "Favori ürününüz indirime girdi"
-                    )
-                )
-            }
-        }
-    }
-
-    private fun clearAllNotifications() {
+    private fun loadFavorites() {
         viewModelScope.launch {
             try {
-                _uiState.update { it.copy(notifications = emptyList()) }
-                _uiEffect.emit(NotificationsUiEffect.AllNotificationsCleared)
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                
+                favoriteRepository.getAllFavorites().collect { favorites ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false,
+                            favorites = favorites,
+                            error = null
+                        )
+                    }
+                }
             } catch (e: Exception) {
-                _uiEffect.emit(NotificationsUiEffect.ShowError("Bildirimler temizlenemedi: ${e.message}"))
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        error = "Failed to load favorites: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    private fun removeFromFavorites(favoriteEntity: FavoriteEntity) {
+        viewModelScope.launch {
+            try {
+                favoriteRepository.removeFromFavorites(favoriteEntity.productId)
+                _uiEffect.emit(NotificationsUiEffect.ShowToast("Removed from favorites"))
+            } catch (e: Exception) {
+                _uiEffect.emit(NotificationsUiEffect.ShowError("Failed to remove from favorites: ${e.message}"))
+            }
+        }
+    }
+
+    private fun clearAllFavorites() {
+        viewModelScope.launch {
+            try {
+                // Tüm favorileri kaldır
+                val currentFavorites = _uiState.value.favorites
+                currentFavorites.forEach { favorite ->
+                    favoriteRepository.removeFromFavorites(favorite.productId)
+                }
+                
+                _uiState.update { it.copy(favorites = emptyList()) }
+                _uiEffect.emit(NotificationsUiEffect.AllFavoritesCleared)
+            } catch (e: Exception) {
+                _uiEffect.emit(NotificationsUiEffect.ShowError("Failed to clear all favorites: ${e.message}"))
             }
         }
     }
 }
 
 data class NotificationsUiState(
-    val notifications: List<String> = emptyList(),
+    val favorites: List<FavoriteEntity> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 ) 

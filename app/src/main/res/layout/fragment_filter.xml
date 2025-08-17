@@ -20,7 +20,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Sıralama Bölümü -->
             <TextView
                 android:id="@+id/sortByText"
                 android:layout_width="wrap_content"
@@ -37,7 +36,6 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Marka Bölümü -->
             <TextView
                 android:id="@+id/brandTv"
                 android:layout_width="wrap_content"
@@ -64,7 +62,6 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Model Bölümü -->
             <TextView
                 android:id="@+id/modelText"
                 android:layout_width="wrap_content"
@@ -99,7 +96,6 @@
         android:id="@+id/applyFiltersButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="56dp"
         android:text="Filtreleri Uygula"
         android:textSize="16sp"
         android:textAllCaps="false"

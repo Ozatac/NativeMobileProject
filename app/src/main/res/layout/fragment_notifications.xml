@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.notifications.NotificationsFragment">
 
-    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -17,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Error Layout -->
     <LinearLayout
         android:id="@+id/errorLayout"
         android:layout_width="wrap_content"
@@ -58,7 +56,38 @@
 
     </LinearLayout>
 
-    <!-- Empty State Text -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="My Favorites"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <Button
+            android:id="@+id/clearAllButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear All"
+            android:textSize="14sp"
+            android:backgroundTint="@color/error"
+            android:textColor="@color/white"
+            android:minHeight="40dp" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/emptyStateText"
         android:layout_width="0dp"
@@ -73,9 +102,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
@@ -86,6 +114,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

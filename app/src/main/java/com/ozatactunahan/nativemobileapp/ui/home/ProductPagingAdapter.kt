@@ -87,11 +87,7 @@ class ProductPagingAdapter(
                 updateFavoriteIcon(product.id)
 
                 favoriteButton.setOnClickListener {
-                    val currentFavoriteState = favoriteStates[product.id] ?: false
-                    onFavoriteClick(product, !currentFavoriteState)
-
-                    favoriteStates[product.id] = !currentFavoriteState
-                    updateFavoriteIcon(product.id)
+                    onFavoriteClick(product, favoriteStates[product.id] ?: false)
                 }
             }
         }
@@ -100,9 +96,9 @@ class ProductPagingAdapter(
             if (currentProduct?.id == productId) {
                 val isFavorite = favoriteStates[productId] ?: false
                 val favoriteIcon = if (isFavorite) {
-                    R.drawable.ic_notifications_black_24dp
+                    R.drawable.ic_favorite_filled
                 } else {
-                    R.drawable.ic_favorite
+                    R.drawable.ic_favorite_border
                 }
                 binding.favoriteButton.setImageResource(favoriteIcon)
             }

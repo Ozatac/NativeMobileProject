@@ -33,13 +33,38 @@ class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(Fragmen
         observeData()
     }
 
+    private lateinit var favoriteAdapter: FavoriteProductAdapter
+
     private fun setupUI() {
         setupRecyclerView()
+        setupClearAllButton()
     }
 
     private fun setupRecyclerView() {
+        favoriteAdapter = FavoriteProductAdapter(
+            onRemoveClick = { favorite ->
+                viewModel.onUiEvent(NotificationsUiEvent.RemoveFromFavorites(favorite))
+            },
+            onProductClick = { favorite ->
+                // TODO: Navigate to product detail
+                // For now, just show a toast
+                Toast.makeText(requireContext(), "Product: ${favorite.name}", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        binding.recyclerView.apply {
+            adapter = favoriteAdapter
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
+        }
+
         binding.retryButton.setOnClickListener {
             viewModel.onUiEvent(NotificationsUiEvent.Refresh)
+        }
+    }
+
+    private fun setupClearAllButton() {
+        binding.clearAllButton.setOnClickListener {
+            viewModel.onUiEvent(NotificationsUiEvent.ClearAll)
         }
     }
 
@@ -56,17 +81,24 @@ class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(Fragmen
     private fun handleUiState(uiState: NotificationsUiState) {
         binding.progressBar.isVisible = uiState.isLoading
 
-        binding.errorText.run {
-            isVisible = !uiState.error.isNullOrBlank()
-            text = uiState.error.orEmpty()
-        }
-
-        if (uiState.notifications.isNotEmpty()) {
-            binding.emptyStateText.isVisible = false
-            binding.recyclerView.isVisible = true
-        } else {
-            binding.emptyStateText.isVisible = true
+        // Error handling
+        if (!uiState.error.isNullOrBlank()) {
+            binding.errorLayout.isVisible = true
+            binding.errorText.text = uiState.error
             binding.recyclerView.isVisible = false
+            binding.emptyStateText.isVisible = false
+        } else {
+            binding.errorLayout.isVisible = false
+            
+            // Favorites display
+            if (uiState.favorites.isNotEmpty()) {
+                binding.emptyStateText.isVisible = false
+                binding.recyclerView.isVisible = true
+                favoriteAdapter.submitList(uiState.favorites)
+            } else {
+                binding.emptyStateText.isVisible = true
+                binding.recyclerView.isVisible = false
+            }
         }
     }
 
@@ -84,10 +116,10 @@ class NotificationsFragment : BaseFragment<FragmentNotificationsBinding>(Fragmen
                 showError(effect.message)
             }
 
-            is NotificationsUiEffect.AllNotificationsCleared -> {
+            is NotificationsUiEffect.AllFavoritesCleared -> {
                 Toast.makeText(
                     requireContext(),
-                    "All notifications cleared",
+                    "All favorites cleared",
                     Toast.LENGTH_SHORT
                 ).show()
             }

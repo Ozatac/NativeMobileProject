@@ -10,10 +10,10 @@ import com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity
 import com.ozatactunahan.nativemobileapp.databinding.ItemFavoriteProductBinding
 import com.ozatactunahan.nativemobileapp.util.loadProductImage
 
-class FavoritesAdapter(
-    private val onFavoriteClick: (FavoriteEntity) -> Unit,
+class FavoriteProductAdapter(
+    private val onRemoveClick: (FavoriteEntity) -> Unit,
     private val onProductClick: (FavoriteEntity) -> Unit
-) : ListAdapter<FavoriteEntity, FavoritesAdapter.FavoriteViewHolder>(FavoriteDiffCallback()) {
+) : ListAdapter<FavoriteEntity, FavoriteProductAdapter.FavoriteViewHolder>(FavoriteDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoriteViewHolder {
         val binding = ItemFavoriteProductBinding.inflate(
@@ -35,20 +35,20 @@ class FavoritesAdapter(
         fun bind(favorite: FavoriteEntity) {
             binding.apply {
                 productName.text = favorite.name
-                
                 productBrand.text = favorite.brand
-                
                 productPrice.text = "$${favorite.price}"
-                
+
+                // Ürün resmini yükle
                 productImage.loadProductImage(favorite.imageUrl)
-                
-                favoriteButton.setImageResource(R.drawable.ic_favorite_filled)
-                favoriteButton.setOnClickListener {
-                    onFavoriteClick(favorite)
-                }
-                
+
+                // Ürün tıklama
                 root.setOnClickListener {
                     onProductClick(favorite)
+                }
+
+                // Favoriden çıkarma butonu
+                removeButton.setOnClickListener {
+                    onRemoveClick(favorite)
                 }
             }
         }

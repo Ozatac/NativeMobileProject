@@ -10,12 +10,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Ürün Görseli ve Favori İkonu -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="300dp">
-
-
 
             <ImageView
                 android:id="@+id/productDetailImage"
@@ -38,14 +35,12 @@
 
         </FrameLayout>
 
-        <!-- Ürün Bilgileri -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Ürün Adı -->
             <TextView
                 android:id="@+id/productDetailTitle"
                 android:layout_width="match_parent"
@@ -56,7 +51,6 @@
                 android:textStyle="bold"
                 tools:text="Ürün Adı" />
 
-            <!-- Ürün Açıklaması -->
             <TextView
                 android:id="@+id/productDetailDescription"
                 android:layout_width="match_parent"
@@ -66,14 +60,12 @@
                 android:textSize="16sp"
                 tools:text="Ürün açıklaması burada yer alacak. Bu ürün hakkında detaylı bilgi verilecek." />
 
-            <!-- Fiyat ve Sepete Ekle Butonu -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- Fiyat -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -99,7 +91,6 @@
 
                 </LinearLayout>
 
-                <!-- Sepete Ekle Butonu -->
                 <Button
                     android:id="@+id/productDetailAddToCartButton"
                     android:layout_width="wrap_content"
@@ -112,11 +103,7 @@
                     android:text="Sepete Ekle"
                     android:textColor="@android:color/white"
                     android:textSize="16sp" />
-
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
-
 </ScrollView>

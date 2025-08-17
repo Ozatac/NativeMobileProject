@@ -38,6 +38,12 @@ object DatabaseModule {
     
     @Provides
     @Singleton
+    fun provideFavoriteDao(database: AppDatabase): com.ozatactunahan.nativemobileapp.data.local.dao.FavoriteDao {
+        return database.favoriteDao()
+    }
+    
+    @Provides
+    @Singleton
     fun provideCartRepository(
         cartDao: CartDao,
         orderDao: OrderDao
@@ -55,27 +61,9 @@ object DatabaseModule {
     
     @Provides
     @Singleton
-    fun provideFavoriteRepository(): FavoriteRepository {
-        return object : FavoriteRepository {
-            override fun getAllFavorites(): kotlinx.coroutines.flow.Flow<List<com.ozatactunahan.nativemobileapp.data.local.entity.FavoriteEntity>> {
-                return kotlinx.coroutines.flow.flowOf(emptyList())
-            }
-            
-            override suspend fun addToFavorites(product: com.ozatactunahan.nativemobileapp.data.model.Product) {
-                // TODO: Implement
-            }
-            
-            override suspend fun removeFromFavorites(productId: String) {
-                // TODO: Implement
-            }
-            
-            override fun isFavorite(productId: String): kotlinx.coroutines.flow.Flow<Boolean> {
-                return kotlinx.coroutines.flow.flowOf(false)
-            }
-            
-            override fun getFavoriteCount(): kotlinx.coroutines.flow.Flow<Int> {
-                return kotlinx.coroutines.flow.flowOf(0)
-            }
-        }
+    fun provideFavoriteRepository(
+        favoriteDao: com.ozatactunahan.nativemobileapp.data.local.dao.FavoriteDao
+    ): FavoriteRepository {
+        return com.ozatactunahan.nativemobileapp.data.repository.FavoriteRepositoryImpl(favoriteDao)
     }
 }

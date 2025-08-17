@@ -29,7 +29,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: ProductPagingAdapter
-    
+
     @Inject
     lateinit var networkUtils: NetworkUtils
 
@@ -37,7 +37,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         view: View,
         savedInstanceState: Bundle?
     ) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(
+            view,
+            savedInstanceState
+        )
         setupUI()
         observeData()
     }
@@ -53,15 +56,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         adapter = ProductPagingAdapter(
             onProductClick = { product -> viewModel.onUiEvent(HomeUiEvent.ProductClick(product)) },
             onAddToCartClick = { product -> viewModel.onUiEvent(HomeUiEvent.AddToCartClick(product)) },
-            onFavoriteClick = { product, isFavorite -> viewModel.onUiEvent(HomeUiEvent.FavoriteClick(product)) }
-        )
+            onFavoriteClick = { product, isFavorite -> viewModel.onUiEvent(HomeUiEvent.FavoriteClick(product)) })
 
         val loadingFooterAdapter = LoadingFooterAdapter()
-        
-        val concatAdapter = androidx.recyclerview.widget.ConcatAdapter(adapter, loadingFooterAdapter)
-        
+
+        val concatAdapter = androidx.recyclerview.widget.ConcatAdapter(
+            adapter,
+            loadingFooterAdapter
+        )
+
         binding.recyclerView.apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = GridLayoutManager(
+                context,
+                2
+            )
             adapter = concatAdapter
         }
     }
@@ -71,7 +79,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
                     handleUiState(uiState)
-                    adapter.submitData(lifecycle, uiState.pagingData)
+                    adapter.submitData(
+                        lifecycle,
+                        uiState.pagingData
+                    )
                 }
             }
         }
@@ -81,7 +92,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
 
         observeFavoriteStates()
-        
+
         collectLatestLifecycleFlow(viewModel.uiEffect) { effect ->
             handleUiEffect(effect)
         }
@@ -108,7 +119,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         val isAppendLoading = append is LoadState.Loading
 
         showLoading(isRefreshLoading)
-        
+
         (refresh as? LoadState.Error)?.let {
             showError(it.error.message)
         }
@@ -124,20 +135,36 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             is HomeUiEffect.NavigateToProductDetail -> {
                 navigateToProductDetail(effect.product)
             }
+
             is HomeUiEffect.NavigateToFilter -> {
                 navigateToFilter()
             }
+
             is HomeUiEffect.ShowToast -> {
-                Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    effect.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             is HomeUiEffect.ShowSnackbar -> {
-                Toast.makeText(requireContext(), effect.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    effect.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
             is HomeUiEffect.ShowError -> {
                 showError(effect.message)
             }
+
             is HomeUiEffect.ClearSearchView -> {
-                binding.searchView.setQuery("", false)
+                binding.searchView.setQuery(
+                    "",
+                    false
+                )
             }
         }
     }
@@ -148,8 +175,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
-    private fun showPagingLoading(show: Boolean) {
-    }
+    private fun showPagingLoading(show: Boolean) {}
 
     private fun showError(message: String?) {
         ErrorHandler.showError(
@@ -166,15 +192,24 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun navigateToProductDetail(product: Product) {
         val bundle = Bundle().apply {
-            putParcelable("product", product)
+            putParcelable(
+                "product",
+                product
+            )
         }
-        findNavController().navigate(R.id.navigation_product_detail, bundle)
+        findNavController().navigate(
+            R.id.navigation_product_detail,
+            bundle
+        )
     }
 
     private fun observeFavoriteStates() {
         collectLatestLifecycleFlow(viewModel.uiState) { uiState ->
             uiState.favoriteStates.forEach { (productId, isFavorite) ->
-                adapter.updateFavoriteState(productId, isFavorite)
+                adapter.updateFavoriteState(
+                    productId,
+                    isFavorite
+                )
             }
         }
     }
@@ -195,7 +230,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             viewModel.onUiEvent(HomeUiEvent.Refresh)
         }
     }
-    
 
 
     private fun navigateToFilter() {

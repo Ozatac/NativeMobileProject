@@ -6,132 +6,127 @@
     android:layout_height="match_parent"
     tools:context=".ui.profile.ProfileFragment">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
         android:background="@color/white"
         android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:text="Profilim"
-            android:textSize="24sp"
-            android:textStyle="bold"
             android:textColor="@color/black"
-            android:gravity="center" />
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="center"
             android:text="View your order history"
-            android:textSize="16sp"
-                            android:textColor="@color/gray_600"
-            android:gravity="center" />
+            android:textColor="@color/gray_600"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
-    <!-- Orders RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/ordersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
-    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/emptyOrdersLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-                         <ImageView
-                     android:layout_width="120dp"
-                     android:layout_height="120dp"
-                     android:src="@drawable/ic_notifications_black_24dp"
-                     app:tint="@color/gray_400" />
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_notifications_black_24dp"
+            app:tint="@color/gray_400" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Henüz siparişiniz yok"
+            android:textColor="#CCCCCC"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#CCCCCC" />
+            android:textStyle="bold" />
 
-                         <TextView
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_marginTop="8dp"
-                     android:text="İlk siparişinizi vermek için sepet ekranına gidin"
-                     android:textSize="16sp"
-                     android:textColor="@color/gray_400" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="İlk siparişinizi vermek için sepet ekranına gidin"
+            android:textColor="@color/gray_400"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
-                 <!-- Error Layout -->
-             <LinearLayout
-                 android:id="@+id/errorLayout"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:orientation="vertical"
-                 android:gravity="center"
-                 android:visibility="gone"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent">
+    <LinearLayout
+        android:id="@+id/errorLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-                 <ImageView
-                     android:layout_width="80dp"
-                     android:layout_height="80dp"
-                     android:src="@drawable/ic_notifications_black_24dp"
-                     app:tint="@color/error" />
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_notifications_black_24dp"
+            app:tint="@color/error" />
 
-                 <TextView
-                     android:id="@+id/errorText"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_marginTop="16dp"
-                     android:text="An error occurred"
-                     android:textSize="16sp"
-                     android:textColor="@color/error"
-                     android:gravity="center"
-                     android:maxLines="3" />
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:maxLines="3"
+            android:text="An error occurred"
+            android:textColor="@color/error"
+            android:textSize="16sp" />
 
-                 <Button
-                     android:id="@+id/retryButton"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_marginTop="16dp"
-                     android:text="Try Again"
-                     android:backgroundTint="@color/blue_500"
-                     android:textColor="@color/white" />
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/blue_500"
+            android:text="Try Again"
+            android:textColor="@color/white" />
 
-             </LinearLayout>
+    </LinearLayout>
 
-             <!-- Loading -->
-             <ProgressBar
-                 android:id="@+id/progressBar"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:visibility="gone"
-                 app:layout_constraintTop_toTopOf="parent"
-                 app:layout_constraintBottom_toBottomOf="parent"
-                 app:layout_constraintStart_toStartOf="parent"
-                 app:layout_constraintEnd_toEndOf="parent" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

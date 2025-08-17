@@ -141,19 +141,31 @@ class HomeViewModel @Inject constructor(
     fun toggleFavorite(product: Product) {
         viewModelScope.launch {
             try {
-                favoriteRepository.isFavorite(product.id).collect { isFavorite ->
-                    if (isFavorite) {
-                        favoriteRepository.removeFromFavorites(product.id)
-                        updateFavoriteState(product.id, false)
-                    } else {
-                        favoriteRepository.addToFavorites(product)
-                        updateFavoriteState(product.id, true)
-                    }
+                // Mevcut favori durumunu al
+                val currentState = _uiState.value.favoriteStates[product.id] ?: false
+                val newState = !currentState
+                
+                // Önce UI'ı güncelle (optimistic update)
+                updateFavoriteState(product.id, newState)
+                
+                // Sonra repository'yi güncelle
+                if (newState) {
+                    favoriteRepository.addToFavorites(product)
+                } else {
+                    favoriteRepository.removeFromFavorites(product.id)
                 }
+                
+                // Başarılı işlem sonrası toast göster
+                _uiEffect.emit(HomeUiEffect.ShowToast(
+                    if (newState) "Added to favorites" else "Removed from favorites"
+                ))
+                
             } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(error = "Favori işlemi başarısız: ${e.message}")
-                }
+                // Hata durumunda eski duruma geri dön
+                val currentState = _uiState.value.favoriteStates[product.id] ?: false
+                updateFavoriteState(product.id, !currentState)
+                
+                _uiEffect.emit(HomeUiEffect.ShowError("Favorite operation failed: ${e.message}"))
             }
         }
     }
