@@ -117,19 +117,19 @@ A modern Android e-commerce application built with Clean Architecture, MVVM patt
 ## 📱 Screenshots
 
 ### Home Screen
-![Home Screen](screenshots/home_screen.png)
+![Screenshot 2025-08-17 at 23.55.55.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_JcbI9K/Screenshot%202025-08-17%20at%2023.55.55.png)
 
 ### Product Detail
-![Product Detail](screenshots/product_detail.png)
+![Screenshot 2025-08-17 at 23.56.17.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_4fuIOO/Screenshot%202025-08-17%20at%2023.56.17.png)
 
 ### Cart
-![Cart](screenshots/cart_screen.png)
+![Screenshot 2025-08-17 at 23.56.32.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_efI5Vw/Screenshot%202025-08-17%20at%2023.56.32.png)
 
 ### Favorites
-![Favorites](screenshots/favorites_screen.png)
+![Screenshot 2025-08-17 at 23.56.58.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_wtHYjh/Screenshot%202025-08-17%20at%2023.56.58.png)
 
 ### Filter
-![Filter](screenshots/filter_screen.png)
+![Screenshot 2025-08-17 at 23.57.14.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_fAezR0/Screenshot%202025-08-17%20at%2023.57.14.png)
 
 ## 🚀 Getting Started
 
@@ -329,47 +329,3 @@ We welcome contributions! Please follow these steps:
 - Use meaningful commit messages
 - Follow Kotlin coding conventions
 - Add proper documentation
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Material Design**: Google's design system
-- **Android Jetpack**: Modern Android development tools
-- **Kotlin**: Modern programming language for Android
-- **Open Source Community**: All the amazing libraries used
-
-## 📞 Contact
-
-- **Developer**: [Your Name]
-- **Email**: [your.email@example.com]
-- **GitHub**: [@yourusername]
-- **LinkedIn**: [Your LinkedIn]
-
-## 📈 Roadmap
-
-### **Version 1.1**
-- [ ] User authentication
-- [ ] Push notifications
-- [ ] Payment integration
-- [ ] Order tracking
-
-### **Version 1.2**
-- [ ] Multi-language support
-- [ ] Dark theme
-- [ ] Advanced analytics
-- [ ] Social sharing
-
-### **Version 1.3**
-- [ ] AR product preview
-- [ ] Voice search
-- [ ] Personalized recommendations
-- [ ] Offline mode
-
----
-
-⭐ **Star this repository if you find it helpful!**
-
-🔄 **Stay updated with the latest features and improvements!**
