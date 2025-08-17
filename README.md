@@ -117,19 +117,19 @@ A modern Android e-commerce application built with Clean Architecture, MVVM patt
 ## 📱 Screenshots
 
 ### Home Screen
-<img width="407" height="849" alt="Screenshot 2025-08-17 at 23 59 19" src="https://github.com/user-attachments/assets/c8b29c8a-ed80-48f2-b3b4-25041778a939" />
+<img width="200" height="400" alt="Screenshot 2025-08-17 at 23 59 19" src="https://github.com/user-attachments/assets/c8b29c8a-ed80-48f2-b3b4-25041778a939" />
 
 ### Product Detail
-<img width="412" height="862" alt="Screenshot 2025-08-17 at 23 59 07" src="https://github.com/user-attachments/assets/f23783be-50a9-43b3-a051-b5341adec6a5" />
+<img width="200" height="400" alt="Screenshot 2025-08-17 at 23 59 07" src="https://github.com/user-attachments/assets/f23783be-50a9-43b3-a051-b5341adec6a5" />
 
 ### Cart
-<img width="411" height="863" alt="Screenshot 2025-08-17 at 23 58 47" src="https://github.com/user-attachments/assets/ca6a0883-e2b3-411b-977a-047e17c1551f" />
+<img width="200" height="400" alt="Screenshot 2025-08-17 at 23 58 47" src="https://github.com/user-attachments/assets/ca6a0883-e2b3-411b-977a-047e17c1551f" />
 
 ### Favorites
-<img width="407" height="874" alt="Screenshot 2025-08-17 at 23 58 21" src="https://github.com/user-attachments/assets/2ac6aea6-52a5-4a93-9735-543d1358a5df" />
+<img width="200" height="400" alt="Screenshot 2025-08-17 at 23 58 21" src="https://github.com/user-attachments/assets/2ac6aea6-52a5-4a93-9735-543d1358a5df" />
 
 ### Filter
-<img width="420" height="866" alt="Screenshot 2025-08-17 at 23 57 59" src="https://github.com/user-attachments/assets/db1a1b48-f41e-4021-afa7-48597dce9169" />
+<img width="420" height="400" alt="Screenshot 2025-08-17 at 23 57 59" src="https://github.com/user-attachments/assets/db1a1b48-f41e-4021-afa7-48597dce9169" />
 
 ## 🚀 Getting Started
 
