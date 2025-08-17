@@ -117,19 +117,19 @@ A modern Android e-commerce application built with Clean Architecture, MVVM patt
 ## 📱 Screenshots
 
 ### Home Screen
-![Screenshot 2025-08-17 at 23.55.55.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_JcbI9K/Screenshot%202025-08-17%20at%2023.55.55.png)
+<img width="407" height="849" alt="Screenshot 2025-08-17 at 23 59 19" src="https://github.com/user-attachments/assets/c8b29c8a-ed80-48f2-b3b4-25041778a939" />
 
 ### Product Detail
-![Screenshot 2025-08-17 at 23.56.17.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_4fuIOO/Screenshot%202025-08-17%20at%2023.56.17.png)
+<img width="412" height="862" alt="Screenshot 2025-08-17 at 23 59 07" src="https://github.com/user-attachments/assets/f23783be-50a9-43b3-a051-b5341adec6a5" />
 
 ### Cart
-![Screenshot 2025-08-17 at 23.56.32.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_efI5Vw/Screenshot%202025-08-17%20at%2023.56.32.png)
+<img width="411" height="863" alt="Screenshot 2025-08-17 at 23 58 47" src="https://github.com/user-attachments/assets/ca6a0883-e2b3-411b-977a-047e17c1551f" />
 
 ### Favorites
-![Screenshot 2025-08-17 at 23.56.58.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_wtHYjh/Screenshot%202025-08-17%20at%2023.56.58.png)
+<img width="407" height="874" alt="Screenshot 2025-08-17 at 23 58 21" src="https://github.com/user-attachments/assets/2ac6aea6-52a5-4a93-9735-543d1358a5df" />
 
 ### Filter
-![Screenshot 2025-08-17 at 23.57.14.png](../../../../var/folders/hp/4kglp8gj7yvbbpx7fwy9_zbr0000gn/T/TemporaryItems/NSIRD_screencaptureui_fAezR0/Screenshot%202025-08-17%20at%2023.57.14.png)
+<img width="420" height="866" alt="Screenshot 2025-08-17 at 23 57 59" src="https://github.com/user-attachments/assets/db1a1b48-f41e-4021-afa7-48597dce9169" />
 
 ## 🚀 Getting Started
 
